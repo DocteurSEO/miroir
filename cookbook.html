@@ -4,519 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miroir.js Cookbook - Tutoriel Interactif</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --light-bg: #f4f7f9;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(0, 0, 0, 0.08);
-            --text-dark: #2c3e50;
-            --text-muted: #7f8c9a;
-            --accent-blue: #0969da;
-            --accent-purple: #8a2be2;
-            --success: #2ecc71;
-            --font-sans: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Roboto Mono', monospace;
-            --shadow-sm: 0 4px 12px rgba(0,0,0,0.05);
-            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #e0f7fa, #f3e5f5);
-            background-attachment: fixed;
-            color: var(--text-dark);
-            font-family: var(--font-sans);
-            line-height: 1.6;
-            padding: 2rem;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: var(--glass-bg);
-            border-radius: 20px;
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-        }
-        
-        header {
-            text-align: center;
-            padding: 2.5rem 2rem 1.5rem;
-            background: linear-gradient(120deg, rgba(9, 105, 218, 0.1), rgba(138, 43, 226, 0.1));
-            border-bottom: 1px solid var(--glass-border);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        header::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
-            z-index: -1;
-        }
-        
-        .logo {
-            font-size: 3.5rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-        }
-        
-        header h1 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            color: var(--text-dark);
-        }
-        
-        header p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-        
-        .stepper {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .step-btn {
-            padding: 0.9rem 2rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            font-weight: 600;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: var(--transition);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .step-btn:hover {
-            background: rgba(255, 255, 255, 0.95);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-        }
-        
-        .step-btn.active {
-            color: #fff;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            border-color: transparent;
-            box-shadow: 0 6px 20px rgba(9, 105, 218, 0.3);
-        }
-        
-        .step-btn .step-icon {
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-        }
-        
-        .tutorial-step {
-            display: none;
-            padding: 0 2rem 2rem;
-        }
-        
-        .tutorial-step.active {
-            display: block;
-            animation: fadeIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .content-grid {
-            display: grid;
-            grid-template-columns: 40% 1fr;
-            gap: 2rem;
-            height: 60vh;
-        }
-        
-        @media (max-width: 1100px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
-        }
-        
-        .explanation, .interactive-zone {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 2rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            overflow-y: auto;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .explanation h2 {
-            margin-top: 0;
-            color: var(--accent-purple);
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-bottom: 0.5rem;
-        }
-        
-        .explanation h2::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 50px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
-            border-radius: 3px;
-        }
-        
-        .explanation p, .explanation li {
-            color: var(--text-dark);
-            line-height: 1.7;
-            margin-bottom: 1rem;
-        }
-        
-        .explanation code {
-            background-color: rgba(138, 43, 226, 0.1);
-            color: var(--accent-purple);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-family: var(--font-mono);
-            font-size: 0.95rem;
-            border: 1px solid rgba(138, 43, 226, 0.15);
-        }
-        
-        .explanation ul {
-            padding-left: 1.5rem;
-            margin: 1.5rem 0;
-        }
-        
-        .explanation li {
-            margin-bottom: 0.8rem;
-            position: relative;
-        }
-        
-        .explanation li::before {
-            content: "•";
-            color: var(--accent-blue);
-            font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
-        }
-        
-        .interactive-zone {
-            background: transparent;
-            border: none;
-            padding: 0;
-            box-shadow: none;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        
-        .editors-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            flex-grow: 1;
-        }
-        
-        @media (max-width: 768px) {
-            .editors-container {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .editor-wrapper {
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-            position: relative;
-        }
-        
-        .editor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.8rem;
-        }
-        
-        .editor-header label {
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .editor-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .editor-btn {
-            background: rgba(9, 105, 218, 0.1);
-            border: 1px solid rgba(9, 105, 218, 0.2);
-            color: var(--accent-blue);
-            border-radius: 6px;
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        
-        .editor-btn:hover {
-            background: rgba(9, 105, 218, 0.15);
-            transform: translateY(-1px);
-        }
-        
-        .monaco-editor-container {
-            border-radius: 12px;
-            overflow: hidden;
-            flex-grow: 1;
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .preview-container {
-            display: flex;
-            flex-direction: column;
-            height: 280px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--glass-border);
-            background: white;
-        }
-        
-        .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.8rem 1.2rem;
-            background: rgba(9, 105, 218, 0.05);
-            border-bottom: 1px solid var(--glass-border);
-        }
-        
-        .preview-header h3 {
-            margin: 0;
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .preview-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .preview-frame {
-            flex-grow: 1;
-            border: none;
-            width: 100%;
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-            margin-left: 0.5rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-        
-        footer {
-            text-align: center;
-            padding: 2.5rem 2rem;
-            color: var(--text-muted);
-            background: rgba(9, 105, 218, 0.03);
-            border-top: 1px solid var(--glass-border);
-        }
-        
-        footer p {
-            margin-bottom: 0.8rem;
-            font-size: 1.1rem;
-        }
-        
-        footer a {
-            color: var(--accent-blue);
-            text-decoration: none;
-            font-weight: 600;
-            position: relative;
-            transition: var(--transition);
-        }
-        
-        footer a::after {
-            content: "";
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent-blue);
-            transition: width 0.3s ease;
-        }
-        
-        footer a:hover {
-            color: var(--accent-purple);
-        }
-        
-        footer a:hover::after {
-            width: 100%;
-            background: var(--accent-purple);
-        }
-        
-        .progress-bar {
-            height: 4px;
-            background: rgba(9, 105, 218, 0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
-            width: 33.33%;
-            transition: width 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
-        }
-        
-        .completion-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: var(--success);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        
-        .tooltip {
-            position: relative;
-            cursor: help;
-        }
-        
-        .tooltip::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease;
-            z-index: 100;
-        }
-        
-        .tooltip:hover::after {
-            opacity: 1;
-            visibility: visible;
-        }
-    </style>
+    <link rel="stylesheet" href="cookbook.css">
 </head>
 <body>
-    <div class="progress-bar">
-        <div class="progress" id="progress"></div>
-    </div>
 
     <div class="container">
         <header>
-            <div class="logo">🪞</div>
-            <h1>Miroir.js Cookbook</h1>
-            <p>Le tutoriel interactif pour maîtriser la réactivité en un clin d'œil</p>
-            <div class="completion-badge">
-                <i class="fas fa-medal"></i> Tutoriel Interactif
-            </div>
+            <h1>🪞 Miroir.js Cookbook</h1>
+            <p>Le tutoriel interactif pour maîtriser la réactivité en un clin d'œil.</p>
         </header>
 
         <nav class="stepper">
-            <button class="step-btn active" data-step="1">
-                <span class="step-icon">1</span>
-                Le Cœur
-            </button>
-            <button class="step-btn" data-step="2">
-                <span class="step-icon">2</span>
-                Les Extensions
-            </button>
-            <button class="step-btn" data-step="3">
-                <span class="step-icon">3</span>
-                Votre Extension
-            </button>
+            <button class="step-btn active" data-step="1">1. Le Cœur</button>
+            <button class="step-btn" data-step="2">2. Les Extensions</button>
+            <button class="step-btn" data-step="3">3. Votre Extension</button>
         </nav>
 
         <!-- ÉTAPE 1 -->
@@ -528,49 +29,30 @@
                     <p>Quand une propriété de cet objet change, le HTML est mis à jour instantanément.</p>
                     <ol>
                         <li><b>Afficher une donnée :</b> Utilisez la syntaxe <code>{{ variable }}</code>.</li>
-                        <li><b>Lier un champ :</b> Utilisez <code>m-model="variable"</code> sur un <code>&lt;input&gt;</code> pour une liaison dans les deux sens (JS ↔ HTML).</li>
+                        <li><b>Lier un champ :</b> Utilisez <code>d-model="variable"</code> sur un <code>&lt;input&gt;</code> pour une liaison dans les deux sens (JS ↔ HTML).</li>
                     </ol>
                     <p><b>À vous de jouer :</b> Modifiez le nom ou l'âge dans le code ou directement dans les champs de la prévisualisation.</p>
-                    
-                    <div class="tip">
-                        <p><i class="fas fa-lightbulb"></i> <strong>Astuce :</strong> Essayez de changer la valeur d'âge à plus de 100 ans !</p>
-                    </div>
                 </div>
                 <div class="interactive-zone">
                     <div class="editors-container">
                         <div class="editor-wrapper">
-                            <div class="editor-header">
-                                <label><i class="fas fa-code"></i> HTML</label>
-                                <div class="editor-actions">
-                                    <button class="editor-btn reset-btn" data-step="1" data-type="html">
-                                        <i class="fas fa-undo"></i> Réinitialiser
-                                    </button>
-                                </div>
-                            </div>
+                            <label>HTML</label>
                             <div id="html-editor-1" class="monaco-editor-container"></div>
                         </div>
                         <div class="editor-wrapper">
-                            <div class="editor-header">
-                                <label><i class="fas fa-code"></i> JavaScript</label>
-                                <div class="editor-actions">
-                                    <button class="editor-btn reset-btn" data-step="1" data-type="js">
-                                        <i class="fas fa-undo"></i> Réinitialiser
-                                    </button>
-                                </div>
-                            </div>
+                            <label>JavaScript</label>
                             <div id="js-editor-1" class="monaco-editor-container"></div>
                         </div>
                     </div>
-                    <div class="preview-container">
-                        <div class="preview-header">
-                            <h3><i class="fas fa-eye"></i> Prévisualisation <span class="status-indicator"></span></h3>
-                            <div class="preview-actions">
-                                <button class="editor-btn run-btn" data-step="1">
-                                    <i class="fas fa-play"></i> Exécuter
-                                </button>
-                            </div>
+                    <div class="preview-console-container">
+                        <div class="preview-container">
+                            <h3>Prévisualisation</h3>
+                            <iframe id="preview-1" class="preview-frame"></iframe>
                         </div>
-                        <iframe id="preview-1" class="preview-frame"></iframe>
+                        <div class="console-container">
+                            <h3>Console</h3>
+                            <div id="console-1" class="console"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -584,46 +66,27 @@
                     <p>Les extensions sont des super-pouvoirs que vous ajoutez avec <code>miroir.extend()</code>. Elles créent des attributs HTML personnalisés pour des logiques réutilisables.</p>
                     <p>Nous allons utiliser une extension très commune : <code>m-show</code>. Elle affiche un élément seulement si la variable associée est <code>true</code>.</p>
                     <p><b>Exercice :</b> Cochez la case dans la prévisualisation pour faire apparaître et disparaître le message secret.</p>
-                    
-                    <div class="tip">
-                        <p><i class="fas fa-lightbulb"></i> <strong>Astuce :</strong> Vous pouvez ajouter d'autres extensions comme <code>m-class</code> ou <code>m-if</code> pour plus de fonctionnalités.</p>
-                    </div>
                 </div>
                 <div class="interactive-zone">
                     <div class="editors-container">
                         <div class="editor-wrapper">
-                            <div class="editor-header">
-                                <label><i class="fas fa-code"></i> HTML</label>
-                                <div class="editor-actions">
-                                    <button class="editor-btn reset-btn" data-step="2" data-type="html">
-                                        <i class="fas fa-undo"></i> Réinitialiser
-                                    </button>
-                                </div>
-                            </div>
+                            <label>HTML</label>
                             <div id="html-editor-2" class="monaco-editor-container"></div>
                         </div>
                         <div class="editor-wrapper">
-                            <div class="editor-header">
-                                <label><i class="fas fa-code"></i> JavaScript</label>
-                                <div class="editor-actions">
-                                    <button class="editor-btn reset-btn" data-step="2" data-type="js">
-                                        <i class="fas fa-undo"></i> Réinitialiser
-                                    </button>
-                                </div>
-                            </div>
+                            <label>JavaScript</label>
                             <div id="js-editor-2" class="monaco-editor-container"></div>
                         </div>
                     </div>
-                    <div class="preview-container">
-                        <div class="preview-header">
-                            <h3><i class="fas fa-eye"></i> Prévisualisation <span class="status-indicator"></span></h3>
-                            <div class="preview-actions">
-                                <button class="editor-btn run-btn" data-step="2">
-                                    <i class="fas fa-play"></i> Exécuter
-                                </button>
-                            </div>
+                    <div class="preview-console-container">
+                        <div class="preview-container">
+                            <h3>Prévisualisation</h3>
+                            <iframe id="preview-2" class="preview-frame"></iframe>
                         </div>
-                        <iframe id="preview-2" class="preview-frame"></iframe>
+                        <div class="console-container">
+                            <h3>Console</h3>
+                            <div id="console-2" class="console"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -639,56 +102,32 @@
                         <li>Le nom de l'attribut (ex: <code>'m-color'</code>).</li>
                         <li>Une fonction qui reçoit l'élément (<code>el</code>), la valeur de l'attribut (<code>prop</code>), et l'état (<code>state</code>).</li>
                     </ol>
-                    <p><b>Votre mission :</b> Créez une extension <code>m-color</code> qui change la couleur du texte d'un élément. Le code est presque complet, il ne manque qu'une ligne !</p>
-                    
-                    <div class="tip">
-                        <p><i class="fas fa-lightbulb"></i> <strong>Astuce :</strong> Utilisez <code>el.style.color</code> pour changer la couleur du texte.</p>
+                    <p><b>Votre mission :</b> Complétez le code pour créer une extension <code>m-color</code>. Observez la console pour voir les changements de couleur !</p>
+                    <div class="help-actions">
+                        <button id="btn-hint-3" class="btn-help btn-hint">💡 Indice</button>
+                        <button id="btn-solution-3" class="btn-help btn-solution">✅ Solution</button>
                     </div>
                 </div>
                 <div class="interactive-zone">
                     <div class="editors-container">
                         <div class="editor-wrapper">
-                            <div class="editor-header">
-                                <label><i class="fas fa-code"></i> HTML</label>
-                                <div class="editor-actions">
-                                    <button class="editor-btn reset-btn" data-step="3" data-type="html">
-                                        <i class="fas fa-undo"></i> Réinitialiser
-                                    </button>
-                                    <button class="editor-btn tooltip" data-tooltip="Copier le code">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            <label>HTML</label>
                             <div id="html-editor-3" class="monaco-editor-container"></div>
                         </div>
                         <div class="editor-wrapper">
-                            <div class="editor-header">
-                                <label><i class="fas fa-code"></i> JavaScript</label>
-                                <div class="editor-actions">
-                                    <button class="editor-btn reset-btn" data-step="3" data-type="js">
-                                        <i class="fas fa-undo"></i> Réinitialiser
-                                    </button>
-                                    <button class="editor-btn tooltip" data-tooltip="Copier le code">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            <label>JavaScript</label>
                             <div id="js-editor-3" class="monaco-editor-container"></div>
                         </div>
                     </div>
-                    <div class="preview-container">
-                        <div class="preview-header">
-                            <h3><i class="fas fa-eye"></i> Prévisualisation <span class="status-indicator"></span></h3>
-                            <div class="preview-actions">
-                                <button class="editor-btn run-btn" data-step="3">
-                                    <i class="fas fa-play"></i> Exécuter
-                                </button>
-                                <button class="editor-btn success-btn">
-                                    <i class="fas fa-check"></i> Valider
-                                </button>
-                            </div>
+                    <div class="preview-console-container">
+                        <div class="preview-container">
+                            <h3>Prévisualisation</h3>
+                            <iframe id="preview-3" class="preview-frame"></iframe>
                         </div>
-                        <iframe id="preview-3" class="preview-frame"></iframe>
+                        <div class="console-container">
+                            <h3>Console</h3>
+                            <div id="console-3" class="console"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -697,301 +136,11 @@
         <footer>
             <p>Félicitations ! Vous avez les bases pour créer des interfaces réactives avec Miroir.js.</p>
             <p>Pour aller plus loin, explorez <a href="demo.html">demo.html</a> et <a href="extensions.md">extensions.md</a>.</p>
-            <p>Créé avec ❤️ par l'équipe Miroir.js</p>
         </footer>
     </div>
 
-    <script>
-      const stepsData = {
-            '1': {
-                html: `<div class="bind">
-    <h1>Bonjour, {{ name }} !</h1>
-    <p>Vous avez {{ age }} ans.</p>
-    <br>
-    <input d-model="name" placeholder="Votre nom">
-    <input type="number" d-model="age" min="0" max="120">
-</div>`,
-                js: `const state = miroir.create({
-  name: 'Visiteur',
-  age: 30
-});`
-            },
-            '2': {
-                html: `<div class="bind">
-    <label>
-        <input type="checkbox" d-model="showSecret">
-        Révéler le secret
-    </label>
-
-    <div m-show="showSecret" style="margin-top: 1rem; padding: 1rem; background: rgba(9, 105, 218, 0.1); border-radius: 6px;">
-        <p style="color: #0969da; margin: 0;">
-            <strong>Le secret :</strong> Miroir.js est incroyablement simple !
-        </p>
-    </div>
-</div>`,
-                js: `// L'extension m-show est déjà dans extensions.js
-// donc nous n'avons pas besoin de la redéfinir ici.
-
-const app = miroir.create({
-  showSecret: false
-});`
-            },
-            '3': {
-                html: `<div class="bind">
-    <h2 m-color="myColor">Ce texte change de couleur !</h2>
-    <br>
-    <label for="color-picker">Choisissez une couleur :</label>
-    <input type="color" d-model="myColor" id="color-picker">
-    <p>La couleur est : <code>{{ myColor }}</code></p>
-</div>`,
-                js: `// 1. Créez votre extension !
-miroir.extend('m-color', (el, prop, state) => {
-  // el: l'élément <h2>
-  // prop: la chaîne "myColor"
-  // state: l'objet réactif
-  
-  // TODO: Liez la couleur de 'el' à la valeur de state[prop].
-  el.style.color = state[prop];
-});
-
-// 2. Créez l'état
-const app = miroir.create({
-  myColor: '#3498db'
-});
-
-// 3. (Bonus) Observez les changements dans la console
-miroir.watch('myColor', (newValue) => {
-    console.log('La couleur a changé en : ' + newValue);
-});`
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialisation des étapes
-            initStep(1);
-            updateProgress(1);
-            
-            // Gestion des boutons de navigation
-            const stepButtons = document.querySelectorAll('.step-btn');
-            stepButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const step = btn.dataset.step;
-                    
-                    // Mettre à jour l'UI
-                    document.querySelectorAll('.step-btn, .tutorial-step').forEach(el => {
-                        el.classList.remove('active');
-                    });
-                    
-                    btn.classList.add('active');
-                    document.getElementById(`step-${step}`).classList.add('active');
-                    
-                    // Initialiser l'étape
-                    initStep(step);
-                    updateProgress(step);
-                });
-            });
-            
-            // Gestion des boutons de réinitialisation
-            document.querySelectorAll('.reset-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const step = this.dataset.step;
-                    const type = this.dataset.type;
-                    const editorEl = document.querySelector(`#${type}-editor-${step}`);
-                    
-                    // Simuler la réinitialisation du code
-                    editorEl.textContent = stepsData[step][type];
-                    updatePreview(step);
-                    
-                    // Feedback visuel
-                    this.innerHTML = '<i class="fas fa-check"></i> Réinitialisé !';
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-undo"></i> Réinitialiser';
-                    }, 1500);
-                });
-            });
-            
-            // Gestion des boutons d'exécution
-            document.querySelectorAll('.run-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const step = this.dataset.step;
-                    updatePreview(step);
-                    
-                    // Feedback visuel
-                    this.innerHTML = '<i class="fas fa-sync fa-spin"></i> Exécution...';
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-play"></i> Exécuter';
-                    }, 800);
-                });
-            });
-            
-            // Gestion du bouton de validation (étape 3)
-            document.querySelector('.success-btn')?.addEventListener('click', function() {
-                this.innerHTML = '<i class="fas fa-check"></i> Bravo !';
-                this.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
-                this.style.borderColor = 'transparent';
-                this.style.color = 'white';
-            });
-        });
-
-        function initStep(step) {
-            const htmlEditor = document.querySelector(`#html-editor-${step}`);
-            const jsEditor = document.querySelector(`#js-editor-${step}`);
-            
-            if (htmlEditor && !htmlEditor.textContent) {
-                htmlEditor.textContent = stepsData[step].html;
-            }
-            
-            if (jsEditor && !jsEditor.textContent) {
-                jsEditor.textContent = stepsData[step].js;
-            }
-            
-            updatePreview(step);
-        }
-
-        function updatePreview(step) {
-            const iframe = document.getElementById(`preview-${step}`);
-            const htmlEditor = document.querySelector(`#html-editor-${step}`);
-            const jsEditor = document.querySelector(`#js-editor-${step}`);
-            
-            const htmlContent = htmlEditor?.textContent || stepsData[step].html;
-            const jsContent = jsEditor?.textContent || stepsData[step].js;
-            
-            // Créer le contenu de la prévisualisation
-            const previewContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <style>
-                        body { 
-                            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
-                            padding: 20px;
-                            background-color: #fff;
-                            color: #333;
-                        }
-                        input, button {
-                            padding: 10px;
-                            border: 1px solid #ddd;
-                            border-radius: 6px;
-                            margin: 5px 0;
-                        }
-                        h1, h2 {
-                            color: #0969da;
-                        }
-                        .bind {
-                            max-width: 500px;
-                            margin: 0 auto;
-                        }
-                    </style>
-                    <script>
-                        // Simuler miroir.js pour la démo
-                        const miroir = {
-                            create: function(obj) {
-                                // Créer un proxy pour observer les changements
-                                return new Proxy(obj, {
-                                    set(target, property, value) {
-                                        target[property] = value;
-                                        updateBindings(property, value);
-                                        return true;
-                                    }
-                                });
-                            },
-                            extend: function(name, fn) {
-                                // Enregistrer l'extension
-                                window.miroirExtensions = window.miroirExtensions || {};
-                                window.miroirExtensions[name] = fn;
-                            },
-                            watch: function(prop, fn) {
-                                // Simuler l'observation
-                                console.log("Observation activée pour: " + prop);
-                            }
-                        };
-                        
-                        function updateBindings(prop, value) {
-                            // Mettre à jour tous les bindings {{ }}
-                            document.querySelectorAll('[d-model], [m-show], [m-color]').forEach(el => {
-                                if (el.getAttribute('d-model') === prop) {
-                                    if (el.type === 'checkbox') {
-                                        el.checked = value;
-                                    } else {
-                                        el.value = value;
-                                    }
-                                }
-                            });
-                            
-                            // Mettre à jour les éléments avec {{ }}
-                            document.querySelectorAll('h1, h2, p, span').forEach(el => {
-                                if (el.innerHTML.includes('{{ ' + prop + ' }}')) {
-                                    el.innerHTML = el.innerHTML.replace(new RegExp('{{ ' + prop + ' }}', 'g'), value);
-                                }
-                            });
-                            
-                            // Appliquer les extensions
-                            if (window.miroirExtensions) {
-                                Object.keys(window.miroirExtensions).forEach(ext => {
-                                    document.querySelectorAll('[' + ext + ']').forEach(el => {
-                                        const propName = el.getAttribute(ext);
-                                        window.miroirExtensions[ext](el, propName, window.appState);
-                                    });
-                                });
-                            }
-                        }
-                        
-                        // Initialiser les liaisons
-                        document.addEventListener('input', function(e) {
-                            if (e.target.hasAttribute('d-model')) {
-                                const prop = e.target.getAttribute('d-model');
-                                const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-                                if (window.appState) {
-                                    window.appState[prop] = value;
-                                }
-                            }
-                        });
-                    </script>
-                </head>
-                <body>
-                    ${htmlContent}
-                    <script>
-                        try {
-                            ${jsContent}
-                            window.appState = app || state;
-                            
-                            // Initialiser les extensions
-                            if (miroir.extend && window.miroirExtensions) {
-                                Object.keys(window.miroirExtensions).forEach(ext => {
-                                    document.querySelectorAll('[' + ext + ']').forEach(el => {
-                                        const propName = el.getAttribute(ext);
-                                        window.miroirExtensions[ext](el, propName, window.appState);
-                                    });
-                                });
-                            }
-                            
-                            // Initialiser les valeurs
-                            if (window.appState) {
-                                Object.keys(window.appState).forEach(prop => {
-                                    updateBindings(prop, window.appState[prop]);
-                                });
-                            }
-                        } catch(e) {
-                            document.body.innerHTML = '<div style="color:red; padding:20px;"><h3>Erreur d\\'exécution</h3><pre>' + e + '</pre></div>';
-                            console.error(e);
-                        }
-                    </script>
-                </body>
-                </html>
-            `;
-            
-            if (iframe) {
-                iframe.srcdoc = previewContent;
-            }
-        }
-
-        function updateProgress(step) {
-            const progress = document.getElementById('progress');
-            if (progress) {
-                progress.style.width = `${(parseInt(step) / 3 * 100)}%`;
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/loader.js"></script>
+    <script src="./miroir.js"></script>
+    <script src="./cookbook.js"></script>
 </body>
 </html>

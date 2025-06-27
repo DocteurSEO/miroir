@@ -272,7 +272,7 @@ const miroir = (() => {
       const key = input.getAttribute(config.modelAttribute);
       
       // Set initial value
-      input.value = state[key];
+      input.value = state[key] || '';
 
       // Create bidirectional binding with lighter handler
       const handler = e => { state[key] = e.target.value; };

@@ -289,9 +289,9 @@
             <!-- User Profile Demo -->
             <div class="demo-section">
                 <h3>👤 User Profile</h3>
-                <div class="input-group"><label class="input-label">Full Name</label><input class="input" m-model="name" placeholder="Your name"></div>
+                <div class="input-group"><label class="input-label">Full Name</label><input class="input" m-model="nameUser" placeholder="Your name"></div>
                 <div class="input-group"><label class="input-label">Age</label><input class="input" m-model="age" type="number" placeholder="Your age"></div>
-                <div class="display">Hello <span class="highlight bind">{{name}}</span>!<div style="color: var(--light-text); margin-top: 0.5rem; font-size: 1rem;" class="bind">Age: {{ age }} years old</div></div>
+                <div class="display">Hello <span class="highlight bind">{{nameUser}}</span>!<div style="color: var(--light-text); margin-top: 0.5rem; font-size: 1rem;" class="bind">Age: {{ age }} years old</div></div>
             </div>
 
             <!-- Todo List Demo -->
@@ -383,7 +383,7 @@
 
         /* ----------  Miroir App  ---------- */
         const app = miroir.create({
-            name:'John Doe',
+            nameUser:'John Doe',
             age:25,
             counter:0,
             todos:[],
