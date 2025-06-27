@@ -26,11 +26,9 @@
  */
 const miroir = (() => {
   
-  // Pre-compiled regex patterns for optimal performance
-  /** @type {RegExp} Template variable matching regex */
+  // Pre-compiled regex pattern for optimal performance
+  /** @type {RegExp} Template variable matching and replacement regex */
   const TEMPLATE_REGEX = /\{\{\s*(\w+)\s*\}\}/g;
-  /** @type {RegExp} Template replacement regex */
-  const TEMPLATE_REPLACE_REGEX = /\{\{\s*(\w+)\s*\}\}/g;
   
   // Core data structures using Maps for O(1) performance
   /** @type {Map<string, Array>} Property bindings storage */
@@ -41,10 +39,12 @@ const miroir = (() => {
   const extensions = new Map();
   /** @type {WeakMap<Element, *>} Element cache to prevent memory leaks */
   const elementCache = new WeakMap();
+  /** @type {WeakMap<Element, Array>} DOM query cache per root element */
+  const domCache = new WeakMap();
   
   // Batch update system for 60fps performance
-  /** @type {Set<string>} Queue of properties to update */
-  let batchQueue = new Set();
+  /** @type {Array<string>} Queue of properties to update (order matters) */
+  let batchQueue = [];
   /** @type {boolean} Flag to prevent multiple animation frame requests */
   let batchScheduled = false;
 
@@ -96,15 +96,17 @@ const miroir = (() => {
         // Update the target property
         target[key] = value;
 
-        // Add to batch queue for optimized 60fps updates
-        batchQueue.add(key);
+        // Add to batch queue for optimized 60fps updates (avoid duplicates)
+        if (!batchQueue.includes(key)) {
+          batchQueue.push(key);
+        }
         
         // Schedule batch processing using requestAnimationFrame
         if (!batchScheduled) {
           batchScheduled = true;
           requestAnimationFrame(() => {
             processBatch(target);
-            batchQueue.clear();
+            batchQueue.length = 0;
             batchScheduled = false;
           });
         }
@@ -112,7 +114,9 @@ const miroir = (() => {
         // Trigger watchers immediately for real-time callbacks
         const keyWatchers = watchers.get(key);
         if (keyWatchers) {
-          keyWatchers.forEach(cb => cb(value, oldVal));
+          for (let i = 0; i < keyWatchers.length; i++) {
+            keyWatchers[i](value, oldVal);
+          }
         }
 
         return true;
@@ -144,10 +148,12 @@ const miroir = (() => {
    * in a single animation frame for smooth 60fps performance
    */
   function processBatch(state) {
-    batchQueue.forEach(key => {
+    for (let i = 0; i < batchQueue.length; i++) {
+      const key = batchQueue[i];
       const keyBindings = bindings.get(key);
       if (keyBindings) {
-        keyBindings.forEach(binding => {
+        for (let j = 0; j < keyBindings.length; j++) {
+          const binding = keyBindings[j];
           if (binding.type === 'text') {
             if (binding.el.originalHTML) {
               // HTML template binding - complex replacement
@@ -160,9 +166,9 @@ const miroir = (() => {
             // Two-way form input binding
             binding.el.value = state[key];
           }
-        });
+        }
       }
-    });
+    }
   }
 
   /**
@@ -177,38 +183,53 @@ const miroir = (() => {
    * appropriate unidirectional or bidirectional bindings based on element type
    */
   function bindFromConfig(bindingsConfig, state, root) {
-    bindingsConfig.forEach(bindingObj => {
-      Object.entries(bindingObj).forEach(([selector, prop]) => {
-        const elements = root.querySelectorAll(selector);
-        elements.forEach(el => {
+    for (let i = 0; i < bindingsConfig.length; i++) {
+      const bindingObj = bindingsConfig[i];
+      const entries = Object.entries(bindingObj);
+      for (let j = 0; j < entries.length; j++) {
+        const [selector, prop] = entries[j];
+        const elements = getCachedElements(root, selector);
+        for (let k = 0; k < elements.length; k++) {
+          const el = elements[k];
           // Initialize binding array if needed
           if (!bindings.has(prop)) {
             bindings.set(prop, []);
           }
           
           // Cache element type check for performance
-          let isInput = elementCache.get(el);
-          if (isInput === undefined) {
+          let cached = elementCache.get(el);
+          let isInput;
+          if (!cached || cached.isInput === undefined) {
             const tag = el.tagName;
             isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
-            elementCache.set(el, isInput);
+            if (cached) {
+              cached.isInput = isInput;
+            } else {
+              elementCache.set(el, { isInput });
+            }
+          } else {
+            isInput = cached.isInput;
           }
           
           if (isInput) {
             // Bidirectional binding for form elements
             el.value = state[prop] || '';
-            const handler = e => state[prop] = e.target.value;
+            const handler = e => { state[prop] = e.target.value; };
             el.addEventListener('input', handler);
-            el._mitoirHandler = handler; // Store for cleanup
+            
+            // Store handler in WeakMap for cleanup
+            cached = elementCache.get(el);
+            cached.handler = handler;
+            
             bindings.get(prop).push({ type: 'model', el });
           } else {
             // Unidirectional binding for text elements
             el.textContent = state[prop] || '';
             bindings.get(prop).push({ type: 'text', el });
           }
-        });
-      });
-    });
+        }
+      }
+    }
   }
 
   /**
@@ -224,41 +245,48 @@ const miroir = (() => {
    */
   function autoBind(root, state, config) {
     // Bind HTML template elements with {{ variable }} syntax
-    root.querySelectorAll(config.bindSelector).forEach(el => {
+    const templateElements = getCachedElements(root, config.bindSelector);
+    for (let i = 0; i < templateElements.length; i++) {
+      const el = templateElements[i];
       // Store original HTML for template replacement
       el.originalHTML = el.innerHTML;
 
       // Find all template variables in the HTML
-      [...el.innerHTML.matchAll(TEMPLATE_REGEX)].forEach(match => {
-        const key = match[1];
+      const matches = [...el.innerHTML.matchAll(TEMPLATE_REGEX)];
+      for (let j = 0; j < matches.length; j++) {
+        const key = matches[j][1];
         if (!bindings.has(key)) {
           bindings.set(key, []);
         }
         bindings.get(key).push({ type: 'text', el });
-      });
+      }
 
       // Initial render
       updateText(el, state);
-    });
+    }
 
     // Bind form inputs with d-model attribute
-    root.querySelectorAll(`[${config.modelAttribute}]`).forEach(input => {
+    const modelElements = getCachedElements(root, `[${config.modelAttribute}]`);
+    for (let i = 0; i < modelElements.length; i++) {
+      const input = modelElements[i];
       const key = input.getAttribute(config.modelAttribute);
       
       // Set initial value
       input.value = state[key];
 
-      // Create bidirectional binding
-      const handler = e => state[key] = e.target.value;
+      // Create bidirectional binding with lighter handler
+      const handler = e => { state[key] = e.target.value; };
       input.addEventListener('input', handler);
-      input._mitoirHandler = handler; // Store for cleanup
+      
+      // Store handler in WeakMap for cleanup
+      elementCache.set(input, { isInput: true, handler });
 
       // Register binding
       if (!bindings.has(key)) {
         bindings.set(key, []);
       }
       bindings.get(key).push({ type: 'model', el: input });
-    });
+    }
   }
 
   /**
@@ -279,18 +307,22 @@ const miroir = (() => {
     }
     
     // Cache HTML detection to avoid repeated indexOf calls
-    let hasHTML = elementCache.get(el);
-    if (hasHTML === undefined) {
-      hasHTML = el.originalHTML.indexOf('<') !== -1;
-      elementCache.set(el, hasHTML);
+    let cached = elementCache.get(el);
+    if (!cached || cached.hasHTML === undefined) {
+      const hasHTML = el.originalHTML.indexOf('<') !== -1;
+      if (cached) {
+        cached.hasHTML = hasHTML;
+      } else {
+        elementCache.set(el, { hasHTML });
+      }
+      cached = elementCache.get(el);
     }
     
     // Replace template variables with actual values
-    TEMPLATE_REPLACE_REGEX.lastIndex = 0;
-    const content = el.originalHTML.replace(TEMPLATE_REPLACE_REGEX, (_, key) => state[key] ?? '');
+    const content = el.originalHTML.replace(TEMPLATE_REGEX, (_, key) => state[key] ?? '');
     
     // Use appropriate update method based on content type
-    if (hasHTML) {
+    if (cached.hasHTML) {
       el.innerHTML = content;
     } else {
       el.textContent = content; // Faster for plain text
@@ -346,12 +378,41 @@ const miroir = (() => {
    * the corresponding handler functions
    */
   function runExtensions(root, state) {
-    extensions.forEach((handler, attr) => {
-      root.querySelectorAll(`[${attr}]`).forEach(el => {
+    const extensionEntries = [...extensions.entries()];
+    for (let i = 0; i < extensionEntries.length; i++) {
+      const [attr, handler] = extensionEntries[i];
+      const elements = getCachedElements(root, `[${attr}]`);
+      for (let j = 0; j < elements.length; j++) {
+        const el = elements[j];
         const expr = el.getAttribute(attr);
         handler(el, expr, state);
-      });
-    });
+      }
+    }
+  }
+
+  /**
+   * Gets cached DOM elements or queries and caches them for performance
+   * 
+   * @private
+   * @param {Element} root - Root element for DOM queries
+   * @param {string} selector - CSS selector to query
+   * @returns {Array<Element>} Array of matching elements
+   * 
+   * @description Caches querySelectorAll results per root element to avoid
+   * repeated DOM queries during initialization
+   */
+  function getCachedElements(root, selector) {
+    let cache = domCache.get(root);
+    if (!cache) {
+      cache = new Map();
+      domCache.set(root, cache);
+    }
+    
+    if (!cache.has(selector)) {
+      cache.set(selector, [...root.querySelectorAll(selector)]);
+    }
+    
+    return cache.get(selector);
   }
 
   /**
@@ -365,19 +426,22 @@ const miroir = (() => {
    */
   function destroy(root) {
     // Remove event listeners to prevent memory leaks
-    root.querySelectorAll('input, textarea, select').forEach(el => {
-      if (el._mitoirHandler) {
-        el.removeEventListener('input', el._mitoirHandler);
-        delete el._mitoirHandler;
+    const formElements = getCachedElements(root, 'input, textarea, select');
+    for (let i = 0; i < formElements.length; i++) {
+      const el = formElements[i];
+      const cached = elementCache.get(el);
+      if (cached && cached.handler) {
+        el.removeEventListener('input', cached.handler);
       }
-    });
+    }
     
     // Clear data structures (WeakMap cleans itself automatically)
     bindings.clear();
     watchers.clear();
+    domCache.delete(root);
     
     // Reset batch system
-    batchQueue.clear();
+    batchQueue.length = 0;
     batchScheduled = false;
   }
 
@@ -388,3 +452,6 @@ const miroir = (() => {
     extend 
   };
 })();
+
+
+
