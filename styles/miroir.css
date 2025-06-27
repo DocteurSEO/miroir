@@ -1,0 +1,570 @@
+/**
+ * 🪞 Miroir.js - Official Design System
+ * Glassmorphism theme with GitHub-inspired elements
+ */
+
+:root {
+  /* GitHub Color Palette */
+  --github-blue: #0969da;
+  --github-blue-hover: #0860ca;
+  --github-blue-active: #0757ba;
+  --github-green: #1a7f37;
+  --github-green-hover: #1a7f37;
+  --github-red: #d1242f;
+  --github-orange: #fb8500;
+  --github-purple: #8250df;
+  
+  /* Neutral Colors - Sober & Elegant */
+  --black: #000000;
+  --dark-gray: #161b22;
+  --medium-gray: #21262d;
+  --light-gray: #30363d;
+  --border-gray: #444c56;
+  --text-gray: #7d8590;
+  --white: #ffffff;
+  --off-white: #f6f8fa;
+  
+  /* Glassmorphism Variables */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+  --glass-blur: 20px;
+  
+  /* Dark Glassmorphism */
+  --dark-glass-bg: rgba(0, 0, 0, 0.3);
+  --dark-glass-border: rgba(255, 255, 255, 0.1);
+  --dark-glass-shadow: rgba(0, 0, 0, 0.3);
+  
+  /* Animation Variables */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --transition-fast: all 0.15s ease;
+  
+  /* Typography */
+  --font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+}
+
+/* =============================================================================
+ * 🌟 GLASSMORPHISM BASE STYLES
+ * ============================================================================= */
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px var(--glass-shadow);
+  transition: var(--transition-smooth);
+}
+
+.glass-dark {
+  background: var(--dark-glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--dark-glass-border);
+  box-shadow: 0 8px 32px var(--dark-glass-shadow);
+}
+
+.glass:hover,
+.glass-dark:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px var(--glass-shadow);
+}
+
+/* Mirror Reflection Effect */
+.mirror-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.mirror-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.mirror-effect:hover::before {
+  left: 100%;
+}
+
+/* =============================================================================
+ * 🎯 BUTTONS - GitHub Style with Glassmorphism
+ * ============================================================================= */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid;
+  border-radius: 6px;
+  transition: var(--transition-smooth);
+  overflow: hidden;
+}
+
+/* Primary Button - GitHub Blue */
+.btn-primary {
+  color: var(--white);
+  background: var(--github-blue);
+  border-color: var(--github-blue);
+  box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04);
+}
+
+.btn-primary:hover {
+  background: var(--github-blue-hover);
+  border-color: var(--github-blue-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(9, 105, 218, 0.3);
+}
+
+.btn-primary:active {
+  background: var(--github-blue-active);
+  transform: translateY(0);
+}
+
+/* Success Button - GitHub Green */
+.btn-success {
+  color: var(--white);
+  background: var(--github-green);
+  border-color: var(--github-green);
+}
+
+.btn-success:hover {
+  background: var(--github-green-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 127, 55, 0.3);
+}
+
+/* Danger Button - GitHub Red */
+.btn-danger {
+  color: var(--white);
+  background: var(--github-red);
+  border-color: var(--github-red);
+}
+
+.btn-danger:hover {
+  background: #c8202c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(209, 36, 47, 0.3);
+}
+
+/* Secondary Button - Glass Style */
+.btn-secondary {
+  color: var(--white);
+  background: var(--dark-glass-bg);
+  border-color: var(--dark-glass-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Ghost Button */
+.btn-ghost {
+  color: var(--text-gray);
+  background: transparent;
+  border-color: var(--border-gray);
+}
+
+.btn-ghost:hover {
+  color: var(--white);
+  background: var(--light-gray);
+  border-color: var(--text-gray);
+}
+
+/* Button Sizes */
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* =============================================================================
+ * 📝 FORM ELEMENTS
+ * ============================================================================= */
+
+.input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.25;
+  color: var(--white);
+  background: var(--dark-glass-bg);
+  border: 1px solid var(--dark-glass-border);
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: var(--transition-smooth);
+}
+
+.input::placeholder {
+  color: var(--text-gray);
+}
+
+.input:focus {
+  outline: 2px solid var(--github-blue);
+  outline-offset: -1px;
+  border-color: var(--github-blue);
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+}
+
+.input:invalid:not(:placeholder-shown) {
+  border-color: var(--github-red);
+}
+
+.input.error {
+  border-color: var(--github-red);
+  box-shadow: 0 0 0 3px rgba(209, 36, 47, 0.3);
+}
+
+.input.success {
+  border-color: var(--github-green);
+  box-shadow: 0 0 0 3px rgba(26, 127, 55, 0.3);
+}
+
+/* =============================================================================
+ * 🏗️ LAYOUT COMPONENTS
+ * ============================================================================= */
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px var(--glass-shadow);
+  transition: var(--transition-smooth);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--glass-shadow);
+}
+
+.card-dark {
+  background: var(--dark-glass-bg);
+  border-color: var(--dark-glass-border);
+  box-shadow: 0 8px 32px var(--dark-glass-shadow);
+}
+
+/* =============================================================================
+ * 📊 PROGRESS & FEEDBACK
+ * ============================================================================= */
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: var(--dark-glass-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--github-blue), var(--github-purple));
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Notification */
+.notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--dark-glass-bg);
+  border: 1px solid var(--dark-glass-border);
+  border-radius: 8px;
+  color: var(--white);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px var(--dark-glass-shadow);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 1000;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+.notification.success {
+  border-color: var(--github-green);
+  box-shadow: 0 8px 32px rgba(26, 127, 55, 0.2);
+}
+
+.notification.error {
+  border-color: var(--github-red);
+  box-shadow: 0 8px 32px rgba(209, 36, 47, 0.2);
+}
+
+/* =============================================================================
+ * ✨ ANIMATIONS & EFFECTS
+ * ============================================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-in {
+  animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* =============================================================================
+ * 🎨 UTILITY CLASSES
+ * ============================================================================= */
+
+.hidden { display: none !important; }
+.visible { display: block !important; }
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-white { color: var(--white); }
+.text-gray { color: var(--text-gray); }
+.text-blue { color: var(--github-blue); }
+.text-green { color: var(--github-green); }
+.text-red { color: var(--github-red); }
+
+.bg-glass { background: var(--glass-bg); }
+.bg-dark-glass { background: var(--dark-glass-bg); }
+.bg-black { background: var(--black); }
+
+.border-glass { border: 1px solid var(--glass-border); }
+.border-dark-glass { border: 1px solid var(--dark-glass-border); }
+
+.rounded { border-radius: 6px; }
+.rounded-lg { border-radius: 12px; }
+.rounded-xl { border-radius: 16px; }
+
+.shadow-glass { box-shadow: 0 8px 32px var(--glass-shadow); }
+.shadow-dark-glass { box-shadow: 0 8px 32px var(--dark-glass-shadow); }
+
+.blur { backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); }
+
+/* Spacing */
+.m-0 { margin: 0; }
+.m-1 { margin: 0.25rem; }
+.m-2 { margin: 0.5rem; }
+.m-3 { margin: 0.75rem; }
+.m-4 { margin: 1rem; }
+
+.p-0 { padding: 0; }
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+
+/* =============================================================================
+ * 📱 RESPONSIVE DESIGN
+ * ============================================================================= */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .notification {
+    left: 1rem;
+    right: 1rem;
+    transform: translateY(-100%);
+  }
+  
+  .notification.show {
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+ * 🌙 DARK MODE OPTIMIZATIONS
+ * ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: var(--dark-gray);
+    color: var(--white);
+  }
+}
+
+/* =============================================================================
+ * 🎭 SPECIAL EFFECTS FOR MIROIR
+ * ============================================================================= */
+
+/* Mirror Shine Effect */
+.mirror-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.mirror-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: rotate 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Glassmorphism Loading */
+.loading {
+  position: relative;
+  background: var(--dark-glass-bg);
+  overflow: hidden;
+}
+
+.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}

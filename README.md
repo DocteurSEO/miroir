@@ -1,21 +1,21 @@
 # 🪞 Miroir.js
 
-**Ultra-lightweight reactive data binding library for modern web applications**
+**Ultra-lightweight reactive data binding library (~2KB gzipped)**
 
-[![Size](https://img.shields.io/badge/size-~4KB-brightgreen.svg)](https://github.com/your-repo/miroir) 
-[![Performance](https://img.shields.io/badge/performance-60fps-blue.svg)](#performance)
+[![Size](https://img.shields.io/badge/size-2KB-brightgreen.svg)](.) 
+[![Performance](https://img.shields.io/badge/performance-60fps-blue.svg)](.)
 [![License](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
 
-Miroir.js provides **simple, powerful, and fast** two-way data binding with zero dependencies. Choose between HTML templates or JavaScript bindings - both work seamlessly together.
+Simple, fast, and extensible reactive data binding with **zero dependencies**. Choose your style: HTML templates `{{}}` or JavaScript bindings.
 
-## ✨ Why Miroir.js?
+## ✨ Why Choose Miroir.js?
 
-- **🚀 Blazing Fast**: 60fps updates with requestAnimationFrame batching
-- **🪶 Ultra Light**: ~4KB minified, zero dependencies  
-- **🎯 Simple API**: Learn in 2 minutes, master in 5
-- **🔧 Flexible**: HTML templates `{{var}}` OR JavaScript bindings
-- **💾 Memory Safe**: WeakMap usage prevents memory leaks
-- **🎨 Framework Agnostic**: Works with any CSS/UI framework
+- **🚀 Blazing Fast**: 60fps with requestAnimationFrame + dirty checking
+- **🪶 Ultra Light**: Just 2KB gzipped, zero dependencies  
+- **🎯 Simple**: 3 functions API - learn in minutes
+- **🔧 Flexible**: HTML templates OR JavaScript bindings (or both!)
+- **🔌 Extensible**: 25+ extensions available + create your own
+- **💾 Memory Safe**: WeakMap usage prevents leaks
 
 ## 📦 Installation
 
@@ -32,93 +32,66 @@ wget https://github.com/your-repo/miroir/raw/main/miroir.js
 
 ## 🚀 Quick Start
 
-### HTML Templates (Classic)
+### Option 1: HTML Templates
 ```html
 <div class="bind">
   <h1>Hello {{ name }}!</h1>
-  <p>You are {{ age }} years old</p>
+  <p>Count: {{ count }}</p>
 </div>
-
 <input d-model="name" placeholder="Your name">
-<input d-model="age" type="number">
+<button onclick="app.count++">+1</button>
 
 <script>
-const state = miroir.create({
+const app = miroir.create({
   name: 'John',
-  age: 25
+  count: 0
 });
 </script>
 ```
 
-### JavaScript Bindings (New!)
-```javascript
-const state = miroir.create({ 
+### Option 2: JavaScript Bindings  
+```html
+<div class="title"></div>
+<div id="counter"></div>
+<input id="name-input">
+
+<script>
+const app = miroir.create({ 
   name: 'John', 
   count: 0 
 }, {
   bindings: [
-    { '.title': 'name' },      // CSS class → property
-    { '#counter': 'count' },   // ID → property  
-    { '#name-input': 'name' }  // Input → property (bidirectional)
-  ]
-});
-```
-
-### Mixed Approach
-```html
-<!-- HTML templates -->
-<div class="bind">Welcome {{ name }}!</div>
-
-<!-- JavaScript bindings -->
-<div class="js-display"></div>
-<input id="js-input">
-
-<script>
-const app = miroir.create({ name: 'World' }, {
-  bindings: [
-    { '.js-display': 'name' },
-    { '#js-input': 'name' }
+    { '.title': 'name' },        // class → property
+    { '#counter': 'count' },     // ID → property  
+    { '#name-input': 'name' }    // input ↔ property
   ]
 });
 </script>
 ```
 
-## 📖 API Reference
+**That's it!** Changes to `app.name` or `app.count` automatically update the DOM.
 
-### `miroir.create(state, options)`
-
-Creates a reactive proxy with automatic DOM binding.
-
-**Parameters:**
-- `state` - Initial state object
-- `options` - Configuration object
-  - `root` - Root element (default: `document.body`)
-  - `bindSelector` - HTML template selector (default: `.bind`)
-  - `modelAttribute` - Input binding attribute (default: `d-model`)
-  - `bindings` - JavaScript binding array (default: `[]`)
-
-**Returns:** Reactive proxy with `.destroy()` method
-
-### `miroir.watch(property, callback)`
-
-Watch for property changes.
+## 📖 Simple API (3 functions)
 
 ```javascript
-miroir.watch('count', (newVal, oldVal) => {
-  console.log(`Count: ${oldVal} → ${newVal}`);
-});
+// 1. Create reactive state
+const app = miroir.create(state, options)
+
+// 2. Watch changes  
+miroir.watch('property', (newVal, oldVal) => {})
+
+// 3. Add custom directives
+miroir.extend('m-show', (el, expr, state) => {})
 ```
 
-### `miroir.extend(attribute, handler)`
-
-Create custom directives.
-
+**Configuration Options:**
 ```javascript
-miroir.extend('m-show', (el, expr, state) => {
-  el.style.display = state[expr] ? 'block' : 'none';
-});
-
-// Usage: <div m-show="visible">Content</div>
+miroir.create(state, {
+  root: document.getElementById('app'),  // Root element
+  bindings: [{ '.class': 'property' }]   // JS bindings
+  // bindSelector: '.bind',              // HTML template selector  
+  // modelAttribute: 'd-model'           // Input binding attribute
+})
 ```
 
 ## 🎯 JavaScript Bindings
@@ -145,6 +118,110 @@ const app = miroir.create(state, {
 - **Input elements** (`input`, `textarea`, `select`) → **Bidirectional binding**
 - **Other elements** → **Unidirectional binding** (updates text content)
 
+## 🔌 Extensions System - The Real Power!
+
+Miroir.js becomes truly powerful with **extensions** - custom directives that handle common patterns:
+
+### Built-in Extension Collection (25+ extensions)
+
+```javascript
+// Load the extensions library
+<script src="extensions.js"></script>
+
+// Now you have 25+ ready-to-use extensions:
+```
+
+#### Conditionals
+```html
+<div m-show="isVisible">Show when true</div>
+<div m-hide="isHidden">Hide when true</div> 
+<div m-class="active:isSelected">Toggle CSS class</div>
+```
+
+#### Lists & Arrays
+```html
+<span m-count="todos">0</span> tasks
+<div m-each="item in items" data-template="<li>{{item}}</li>"></div>
+<div m-empty="todos">No items yet!</div>
+```
+
+#### Forms & Validation
+```html
+<input d-model="email" m-validate="required|email">
+<form m-submit="handleSubmit">...</form>
+<button m-reset="email,password">Reset</button>
+```
+
+#### UI & Formatting
+```html
+<span m-format="currency:price">$0.00</span>
+<span m-format="date:createdAt">Today</span>
+<div m-progress="completion" style="width: 0%"></div>
+```
+
+#### Advanced Features
+```html
+<div m-lazy="loadContent">Loads when visible</div>
+<div m-outside="dropdownOpen">Click outside to close</div>
+<div m-storage="myApp">Auto-saves to localStorage</div>
+```
+
+### Create Your Own Extensions
+
+```javascript
+// Custom show/hide directive
+miroir.extend('m-show', (el, prop, state) => {
+  el.style.display = state[prop] ? 'block' : 'none';
+});
+
+// Custom click handler
+miroir.extend('m-click', (el, handler, state) => {
+  el.addEventListener('click', () => window[handler](state));
+});
+
+// Usage
+<div m-show="isVisible">Content</div>
+<button m-click="handleClick">Click me</button>
+```
+
+### Complete Todo App with Extensions
+```html
+<div class="todo-app">
+  <h1>Tasks (<span m-count="todos">0</span>)</h1>
+  
+  <form m-submit="addTodo">
+    <input d-model="newTodo" m-validate="required" placeholder="New task...">
+    <button type="submit">Add</button>
+  </form>
+  
+  <div m-each="todo in todos" data-template='
+    <div class="todo-item" m-class="completed:todo.done">
+      <span>{{item.text}}</span>
+      <button m-click="deleteTodo">×</button>
+    </div>
+  '></div>
+  
+  <div m-empty="todos">No tasks yet! Add one above.</div>
+  <div m-storage="todo-app"></div> <!-- Auto-save -->
+</div>
+
+<script>
+const app = miroir.create({
+  newTodo: '',
+  todos: []
+});
+
+window.addTodo = (state) => {
+  if (state.newTodo.trim()) {
+    state.todos.push({ text: state.newTodo.trim(), done: false });
+    state.newTodo = '';
+  }
+};
+</script>
+```
+
+**See [extensions.md](extensions.md) for complete documentation and [cookbook.html](cookbook.html) for interactive examples.**
+
 ## ⚡ Performance Features
 
 - **Dirty Checking**: Skips updates when values don't change
@@ -153,108 +230,43 @@ const app = miroir.create(state, {
 - **Regex Pre-compilation**: Templates parsed once, not per update
 - **Smart DOM Updates**: Uses `textContent` vs `innerHTML` intelligently
 
-## 📊 Benchmarks
+## 📊 Performance Comparison
 
-```
-Library        Size    Init Time    Update Time    Memory
-Miroir.js      4KB     ~1ms        ~0.1ms         Low
-Vue.js         34KB    ~15ms       ~2ms           Medium  
-React          42KB    ~25ms       ~3ms           High
-```
+| Library | Size | Performance | Use Case |
+|---------|------|-------------|----------|
+| **Miroir.js** | **2KB** | **60fps** | Simple reactivity, widgets, prototypes |
+| Alpine.js | 15KB | Good | Small-medium apps, Progressive enhancement |
+| Vue.js | 34KB | Good | Medium-large SPAs, Component-based |
+| React | 42KB | Good | Large SPAs, Complex state management |
 
-*Tested with 1000 bindings on Chrome 120*
+## 🚀 Get Started
 
-## 🎨 Real Examples
+### 1. **Simple Prototype** → Use HTML templates
+### 2. **More Control** → Use JavaScript bindings  
+### 3. **Complex Logic** → Add extensions
+### 4. **Production** → Load extensions.js for full power
 
-### Todo App
-```javascript
-const todos = miroir.create({ 
-  items: [], 
-  newItem: '',
-  filter: 'all' 
-}, {
-  bindings: [
-    { '.todo-count': 'items' },
-    { '#new-todo': 'newItem' },
-    { '.filter-all': 'filter' }
-  ]
-});
+## 📚 Documentation
 
-miroir.watch('newItem', (val) => {
-  if (val.includes('\n')) {
-    todos.items.push({ text: val.trim(), done: false });
-    todos.newItem = '';
-  }
-});
-```
-
-### Live Counter
-```javascript
-const counter = miroir.create({ count: 0 }, {
-  bindings: [
-    { '.display': 'count' },
-    { '.progress-bar': 'count' }
-  ]
-});
-
-// Custom directive for progress
-miroir.extend('m-progress', (el, prop, state) => {
-  el.style.width = `${Math.min(state[prop], 100)}%`;
-});
-```
-
-## 🔧 Advanced Usage
-
-### Custom Cleanup
-```javascript
-const app = miroir.create(state, options);
-
-// Later...
-app.destroy(); // Removes all event listeners and clears memory
-```
-
-### Nested Properties
-```javascript
-// Use watchers for nested reactivity
-const state = miroir.create({ user: { name: 'John' } });
-
-miroir.watch('user', (newUser) => {
-  // Handle nested changes
-  updateProfile(newUser);
-});
-```
-
-### Dynamic Bindings
-```javascript
-// Add bindings after creation
-const app = miroir.create(state);
-
-// Manually bind new elements
-document.querySelector('.new-element').textContent = state.property;
-```
-
-## 🚀 Best Practices
-
-1. **Prefer JavaScript bindings** for better performance
-2. **Use specific selectors** to avoid conflicts  
-3. **Clean up** with `.destroy()` when removing components
-4. **Batch updates** - Miroir automatically optimizes multiple changes
-5. **Keep state flat** for best performance
+- **[extensions.md](extensions.md)** - Complete extensions guide (25+ directives)
+- **[cookbook.html](cookbook.html)** - Interactive examples and demos
+- **[demo.html](demo.html)** - Performance showcase
+- **[MIROIR_FOR_LLM.md](MIROIR_FOR_LLM.md)** - AI/LLM integration guide
 
 ## 🤝 Contributing
 
 ```bash
 git clone https://github.com/your-repo/miroir
 cd miroir
-# Make changes to miroir.js
-# Test with demo.html
+# Test with demo.html and cookbook.html
+# Add extensions to extensions.js
 # Submit PR
 ```
 
 ## 📄 License
 
-MIT © [Your Name](https://github.com/your-repo)
+MIT © Miroir.js Team
 
 ---
 
-**"Simple reactivity, maximum performance"** 🪞✨
+**🪞 "Simple reactivity, infinite possibilities with extensions"** ✨

@@ -1,579 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🪞 Miroir.js - Interactive Demo</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Glassmorphism Container */
-        .glass-container {
-            backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            color: white;
-            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-            margin-bottom: 0.5rem;
-        }
-
-        .header p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.2rem;
-        }
-
-        /* Performance Counter */
-        .performance-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 2rem;
-        }
-
-        .stat-item {
-            text-align: center;
-            color: white;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #00ff88;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
-        }
-
-        /* Demo Sections */
-        .demo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .demo-section {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .demo-section h3 {
-            color: #00ff88;
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
-
-        /* Black Glassmorphism Buttons */
-        .btn {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 12px 24px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin: 5px;
-            display: inline-block;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, #00ff88, #00cc6f);
-            color: #000;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(45deg, #00cc6f, #00ff88);
-            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.4);
-        }
-
-        /* Inputs */
-        .input {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 12px 16px;
-            color: white;
-            font-size: 16px;
-            width: 100%;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .input:focus {
-            outline: none;
-            border-color: #00ff88;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-        }
-
-        .input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            height: 20px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #00ff88, #00cc6f);
-            border-radius: 10px;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
-        }
-
-        /* Todo List */
-        .todo-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            animation: slideIn 0.3s ease;
-        }
-
-        .todo-item.completed {
-            opacity: 0.6;
-            text-decoration: line-through;
-        }
-
-        /* Animations */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        /* Display Elements */
-        .display {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            margin: 1rem 0;
-        }
-
-        .display.large {
-            font-size: 3rem;
-            text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .glass-container {
-                margin: 1rem;
-                padding: 1rem;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .demo-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(45deg, #00ff88, #00cc6f);
-            border-radius: 4px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🪞 Miroir.js Premium – Dashboard de performance</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+  <style>
+    /* --- Vars --- */
+    :root{--primary:#0a0a0a;--secondary:#2d2d2d;--accent:#00a05e;--light-accent:#00d37f;--text:#333;--light-text:#5c5c5c;--border:rgba(0,0,0,.08);--glass-bg:rgba(255,255,255,.85);--glass-border:rgba(255,255,255,.5);--shadow:0 8px 32px rgba(0,0,0,.05);--transition:all .25s cubic-bezier(.165,.84,.44,1)}*{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:#fff;min-height:100vh;padding:1rem;display:flex;flex-direction:column;gap:2rem;background-image:radial-gradient(circle at 10% 20%,rgba(240,240,240,.1) 0%,transparent 20%),radial-gradient(circle at 90% 80%,rgba(230,230,230,.1) 0%,transparent 20%);background-attachment:fixed}
+    .glass-container{backdrop-filter:blur(16px) saturate(180%);background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:24px;padding:2.5rem;max-width:1400px;margin:auto;width:100%;box-shadow:var(--shadow)}
+    .header{text-align:center;margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--border)}.header h1{font-size:2.6rem;font-weight:700;display:flex;justify-content:center;gap:.6rem}
+    .performance-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;margin-bottom:3rem;padding:1.5rem;background:rgba(255,255,255,.6);border-radius:18px}
+    .stat-item{background:#fff;border-radius:14px;padding:1.2rem;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.03)}.stat-value{font-size:2.2rem;font-weight:700;color:var(--accent)}.stat-label{color:var(--light-text)}
+    .demo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
+    .demo-section{background:#fff;border:1px solid var(--border);border-radius:18px;padding:1.8rem;box-shadow:0 5px 15px rgba(0,0,0,.03)}.demo-section h3{font-size:1.3rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.6rem}
+    .btn-container{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.2rem}.btn{border:none;border-radius:12px;padding:12px 22px;font-weight:500;font-size:.95rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:var(--transition)}.btn-primary{background:var(--accent);color:#fff}.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+    .display{border:1px solid var(--border);border-radius:14px;background:rgba(250,250,250,.8);padding:1.5rem;text-align:center;margin:1rem 0;font-weight:600}.display.large{font-size:2.4rem}.highlight{color:var(--accent)}
+    .progress-container{height:10px;background:rgba(0,0,0,.05);border-radius:10px;overflow:hidden;margin:1rem 0}.progress-bar{height:100%;background:var(--accent);transition:width .4s ease}
+    .chart-container{height:120px;display:flex;gap:4px;align-items:flex-end;margin:1rem 0}.chart-bar{flex:1;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
+  </style>
 </head>
 <body>
-    <div class="glass-container">
-        <div class="header">
-            <h1>🪞 Miroir.js Demo</h1>
-            <p>Ultra-lightweight reactive data binding (~4KB)</p>
-        </div>
-
-        <!-- Performance Stats -->
-        <div class="performance-stats">
-            <div class="stat-item">
-                <div class="stat-value updates-count">0</div>
-                <div>Updates/sec</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="fps-counter">60</div>
-                <div>FPS</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value bindings-count">0</div>
-                <div>Active Bindings</div>
-            </div>
-        </div>
-
-        <div class="demo-grid">
-            <!-- Live Counter Demo -->
-            <div class="demo-section">
-                <h3>⚡ Live Counter</h3>
-                <div class="display large counter-display">0</div>
-                <div class="progress-container">
-                    <div class="progress-bar" id="counter-progress"></div>
-                </div>
-                <button class="btn btn-primary" onclick="incrementCounter()">+1</button>
-                <button class="btn" onclick="decrementCounter()">-1</button>
-                <button class="btn" onclick="resetCounter()">Reset</button>
-                <button class="btn" onclick="autoIncrement()">Auto +</button>
-            </div>
-
-            <!-- User Profile Demo -->
-            <div class="demo-section">
-                <h3>👤 Profile Binding</h3>
-                <div class="bind">
-                    <div class="display">Hello {{ name }}!</div>
-                    <div style="color: rgba(255,255,255,0.7);">Age: {{ age }} years</div>
-                </div>
-                <input class="input" d-model="name" placeholder="Enter your name">
-                <input class="input" d-model="age" type="number" placeholder="Enter your age">
-            </div>
-
-            <!-- JavaScript Bindings Demo -->
-            <div class="demo-section">
-                <h3>🔗 JS Bindings</h3>
-                <div class="display js-message">Default Message</div>
-                <div style="color: #00ff88;" class="js-status">Ready</div>
-                <input class="input" id="js-input" placeholder="Type something...">
-                <button class="btn" onclick="updateStatus()">Update Status</button>
-            </div>
-
-            <!-- Todo List Demo -->
-            <div class="demo-section">
-                <h3>📝 Todo List</h3>
-                <div class="display">Tasks: <span class="todo-count">0</span></div>
-                <input class="input" id="new-todo" placeholder="Add new task..." onkeypress="handleTodoEnter(event)">
-                <div id="todo-list"></div>
-                <button class="btn btn-primary" onclick="addTodo()">Add Task</button>
-                <button class="btn" onclick="clearCompleted()">Clear Done</button>
-            </div>
-
-            <!-- Animation Demo -->
-            <div class="demo-section">
-                <h3>🎨 Animation Showcase</h3>
-                <div class="display pulse anim-display">Animated Text</div>
-                <input class="input" id="anim-input" placeholder="Text to animate...">
-                <button class="btn" onclick="triggerAnimation()">Animate</button>
-                <button class="btn" onclick="changeColor()">Change Color</button>
-            </div>
-
-            <!-- Performance Test -->
-            <div class="demo-section">
-                <h3>🚀 Performance Test</h3>
-                <div class="display perf-display">0</div>
-                <div style="color: rgba(255,255,255,0.7); margin: 1rem 0;">
-                    Stress test with multiple rapid updates
-                </div>
-                <button class="btn btn-primary" onclick="performanceTest()">Run Test (1000 updates)</button>
-                <button class="btn" onclick="stopTest()">Stop</button>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div style="text-align: center; margin-top: 2rem; color: rgba(255,255,255,0.6);">
-            <p>🪞 Miroir.js - Simple reactivity, maximum performance</p>
-            <p>Made with ❤️ by passionate developers</p>
-        </div>
+  <div class="glass-container">
+    <div class="header">
+      <h1>🪞 Miroir.js Premium</h1>
     </div>
 
-    <script src="miroir.js"></script>
-    <script>
-        // Initialize performance tracking
-        let updateCount = 0;
-        let perfTestRunning = false;
-        let autoIncrementInterval = null;
+    <!-- Stats -->
+    <div class="performance-stats">
+      <div class="stat-item"><div class="stat-value updates-count">0</div><div class="stat-label">Updates/sec</div></div>
+      <div class="stat-item"><div class="stat-value" id="fps-counter">60</div><div class="stat-label">FPS</div></div>
+      <div class="stat-item"><div class="stat-value bindings-count">0</div><div class="stat-label">Liens actifs</div></div>
+      <div class="stat-item"><div class="stat-value memory-usage">0</div><div class="stat-label">Mémoire (MB)</div></div>
+    </div>
 
-        // Main application state
-        const app = miroir.create({
-            name: 'John Doe',
-            age: 25,
-            counter: 0,
-            message: 'Hello from Miroir.js!',
-            status: 'Ready',
-            todos: [],
-            todoCount: 0,
-            animText: 'Animated Text',
-            perfValue: 0
-        }, {
-            // JavaScript bindings
-            bindings: [
-                { '.counter-display': 'counter' },
-                { '.js-message': 'message' },
-                { '.js-status': 'status' },
-                { '#js-input': 'message' },
-                { '.todo-count': 'todoCount' },
-                { '.anim-display': 'animText' },
-                { '#anim-input': 'animText' },
-                { '.perf-display': 'perfValue' },
-                { '.updates-count': 'updateCount' },
-                { '.bindings-count': 'bindingsCount' }
-            ]
-        });
+    <div class="demo-grid">
+      <!-- Profil -->
+      <div class="demo-section">
+        <h3>👤 Profil utilisateur</h3>
+        <label>Nom <input class="input" d-model="name" placeholder="Votre nom"></label><br/>
+        <label>Âge <input class="input" d-model="age" type="number" placeholder="Votre âge"></label>
+        <div class="display">Bonjour <span class="highlight bind">{{ name }}</span> ! Âge : <span class="bind">{{ age }}</span></div>
+      </div>
 
-        // Performance monitoring
-        miroir.watch('counter', () => updateCount++);
-        miroir.watch('message', () => updateCount++);
-        miroir.watch('animText', () => updateCount++);
-        miroir.watch('perfValue', () => updateCount++);
+      <!-- Counter -->
+      <div class="demo-section">
+        <h3>⚡ Compteur</h3>
+        <div class="display large counter-display"><span class="highlight">0</span></div>
+        <div class="progress-container"><div class="progress-bar" id="counter-progress"></div></div>
+        <div class="chart-container" id="counter-chart"></div>
+        <div class="btn-container">
+          <button class="btn btn-primary" onclick="incrementCounter()">+1</button>
+          <button class="btn btn-outline" onclick="decrementCounter()">-1</button>
+          <button class="btn btn-outline" onclick="resetCounter()">Reset</button>
+          <button class="btn" onclick="autoIncrement()">Auto +</button>
+        </div>
+      </div>
 
-        // Update performance stats
-        setInterval(() => {
-            app.updateCount = updateCount;
-            app.bindingsCount = getTotalBindings();
-            updateCount = 0; // Reset counter
-        }, 1000);
+      <!-- Perf test -->
+      <div class="demo-section">
+        <h3>🚀 Test de perf</h3>
+        <div class="display large perf-display"><span class="highlight">0</span></div>
+        <div class="text-muted">1 000 updates/sec tant que c’est actif</div>
+        <div class="chart-container" id="perf-chart"></div>
+        <div class="btn-container">
+          <button class="btn btn-primary" id="btn-perf" onclick="togglePerfTest()">Démarrer</button>
+          <button class="btn btn-outline" onclick="resetPerfTest()">Reset</button>
+        </div>
+      </div>
 
-        // Progress bar update
-        miroir.extend('m-progress', (el, prop, state) => {
-            const value = Math.min(Math.abs(state[prop]), 100);
-            el.style.width = `${value}%`;
-        });
+      <!-- Todo -->
+      <div class="demo-section">
+        <h3>📝 Tâches</h3>
+        <input class="input" id="new-todo" placeholder="Ajouter une tâche…" onkeypress="handleTodoEnter(event)">
+        <div class="display">Tâches : <span class="highlight todo-count">0</span></div>
+        <div id="todo-list"></div>
+        <div class="btn-container">
+          <button class="btn btn-primary" onclick="addTodo()">Ajouter</button>
+          <button class="btn btn-outline" onclick="clearCompleted()">Effacer terminées</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // Counter functions
-        function incrementCounter() {
-            app.counter++;
-            updateProgress();
-        }
+  <!-- Scripts -->
+  <script src="./miroir.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/web-vitals@3/dist/web-vitals.umd.min.js"></script>
+  <script>
+    /* ----- États globaux ----- */
+    let fps = 60, frames = 0, last = performance.now();
+    let updateCount = 0;
+    let autoIncrementInterval = null;
+    let perfRunning = false, perfInterval = null;
+    const chartData = { counter:Array(30).fill(0), perf:Array(30).fill(0) };
 
-        function decrementCounter() {
-            app.counter--;
-            updateProgress();
-        }
+    /* ----- App Miroir ----- */
+    const app = miroir.create({ name:'Jean', age:30, counter:0, todos:[], todoCount:0, perfValue:0, updateCount:0, bindingsCount:0, memoryUsage:0 },{
+      bindings:[
+        {'.counter-display':'counter'},{'.todo-count':'todoCount'},{'.perf-display':'perfValue'},{'.updates-count':'updateCount'},{'.bindings-count':'bindingsCount'},{'.memory-usage':'memoryUsage'}
+      ]
+    });
+    miroir.watch('counter',()=>updateCount++);
+    miroir.watch('perfValue',()=>updateCount++);
 
-        function resetCounter() {
-            app.counter = 0;
-            updateProgress();
-        }
+    /* ----- FPS / stats ----- */
+    const stats = new Stats(); stats.showPanel(0); document.body.appendChild(stats.dom);
+    function frameLoop(){ stats.begin(); frames++; const now=performance.now(); if(now-last>=1000){ fps=frames; frames=0; last=now; document.getElementById('fps-counter').textContent=fps; } stats.end(); requestAnimationFrame(frameLoop);} requestAnimationFrame(frameLoop);
 
-        function autoIncrement() {
-            if (autoIncrementInterval) {
-                clearInterval(autoIncrementInterval);
-                autoIncrementInterval = null;
-                return;
-            }
-            
-            autoIncrementInterval = setInterval(() => {
-                app.counter++;
-                updateProgress();
-            }, 100);
-        }
+    /* ----- UI refresh 1s ----- */
+    setInterval(()=>{ app.updateCount = updateCount; updateCount = 0; if(performance.memory){ app.memoryUsage=(performance.memory.usedJSHeapSize/1048576).toFixed(1);} },1000);
 
-        function updateProgress() {
-            const progressBar = document.getElementById('counter-progress');
-            const value = Math.min(Math.abs(app.counter), 100);
-            progressBar.style.width = `${value}%`;
-        }
+    /* ----- Counter funcs ----- */
+    function incrementCounter(){ app.counter++; updateProgress(); updateCounterChart(); }
+    function decrementCounter(){ app.counter--; updateProgress(); updateCounterChart(); }
+    function resetCounter(){ app.counter=0; updateProgress(); chartData.counter.fill(0); updateCounterChart(); }
+    function autoIncrement(){ if(autoIncrementInterval){ clearInterval(autoIncrementInterval); autoIncrementInterval=null; return; } autoIncrementInterval=setInterval(()=>{ app.counter++; updateProgress(); updateCounterChart(); },100); }
+    function updateProgress(){ document.getElementById('counter-progress').style.width=`${Math.min(Math.abs(app.counter),100)}%`; }
+    function updateCounterChart(){ const container=document.getElementById('counter-chart'); chartData.counter.shift(); chartData.counter.push(app.counter%30); container.innerHTML=''; chartData.counter.forEach((v,i)=>{ const b=document.createElement('div'); b.className='chart-bar'; b.style.height=`${v/30*100}%`; b.style.opacity=.3+i/chartData.counter.length*.7; container.appendChild(b); }); }
 
-        // Status functions
-        function updateStatus() {
-            const statuses = ['Ready', 'Processing', 'Complete', 'Active', 'Standby'];
-            app.status = statuses[Math.floor(Math.random() * statuses.length)];
-        }
+    /* ----- Perf test funcs ----- */
+    function togglePerfTest(){ if(perfRunning){ stopPerf(); return; } startPerf(); }
+    function startPerf(){ perfRunning=true; document.getElementById('btn-perf').textContent='Stop'; perfInterval=setInterval(()=>{ for(let i=0;i<1000;i++) app.perfValue++; updatePerfChart(); },1000); }
+    function stopPerf(){ perfRunning=false; clearInterval(perfInterval); document.getElementById('btn-perf').textContent='Démarrer'; }
+    function resetPerfTest(){ stopPerf(); app.perfValue=0; chartData.perf.fill(0); updatePerfChart(); }
+    function updatePerfChart(){ const container=document.getElementById('perf-chart'); chartData.perf.shift(); chartData.perf.push(app.perfValue%100); container.innerHTML=''; chartData.perf.forEach((v,i)=>{ const b=document.createElement('div'); b.className='chart-bar'; b.style.height=`${v}%`; b.style.opacity=.3+i/chartData.perf.length*.7; container.appendChild(b); }); }
 
-        // Todo functions
-        function addTodo() {
-            const input = document.getElementById('new-todo');
-            if (input.value.trim()) {
-                app.todos.push({
-                    id: Date.now(),
-                    text: input.value.trim(),
-                    completed: false
-                });
-                app.todoCount = app.todos.length;
-                input.value = '';
-                renderTodos();
-            }
-        }
+    /* ----- Todos ----- */
+    function addTodo(){ const input=document.getElementById('new-todo'); const txt=input.value.trim(); if(!txt) return; app.todos.push({id:Date.now(),text:txt,completed:false}); app.todoCount=app.todos.length; input.value=''; renderTodos(); }
+    function handleTodoEnter(e){ if(e.key==='Enter') addTodo(); }
+    function renderTodos(){ const list=document.getElementById('todo-list'); if(app.todos.length===0){ list.innerHTML='<em>Aucune tâche</em>'; return; } list.innerHTML=app.todos.map(t=>`<div><input type="checkbox" ${t.completed?'checked':''} onchange="toggleTodo(${t.id})"> ${t.text} <button onclick="deleteTodo(${t.id})">✕</button></div>`).join(''); }
+    function toggleTodo(id){ const t=app.todos.find(x=>x.id===id); if(t) t.completed=!t.completed; renderTodos(); }
+    function deleteTodo(id){ app.todos=app.todos.filter(x=>x.id!==id); app.todoCount=app.todos.length; renderTodos(); }
+    function clearCompleted(){ app.todos=app.todos.filter(x=>!x.completed); app.todoCount=app.todos.length; renderTodos(); }
 
-        function handleTodoEnter(event) {
-            if (event.key === 'Enter') {
-                addTodo();
-            }
-        }
-
-        function renderTodos() {
-            const todoList = document.getElementById('todo-list');
-            todoList.innerHTML = app.todos.map(todo => `
-                <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                    <input type="checkbox" ${todo.completed ? 'checked' : ''} 
-                           onchange="toggleTodo(${todo.id})" style="margin-right: 10px;">
-                    <span>${todo.text}</span>
-                    <button class="btn" onclick="deleteTodo(${todo.id})" style="margin-left: auto;">✕</button>
-                </div>
-            `).join('');
-        }
-
-        function toggleTodo(id) {
-            const todo = app.todos.find(t => t.id === id);
-            if (todo) {
-                todo.completed = !todo.completed;
-                renderTodos();
-            }
-        }
-
-        function deleteTodo(id) {
-            app.todos = app.todos.filter(t => t.id !== id);
-            app.todoCount = app.todos.length;
-            renderTodos();
-        }
-
-        function clearCompleted() {
-            app.todos = app.todos.filter(t => !t.completed);
-            app.todoCount = app.todos.length;
-            renderTodos();
-        }
-
-        // Animation functions
-        function triggerAnimation() {
-            const display = document.querySelector('.anim-display');
-            display.style.transform = 'scale(1.2)';
-            display.style.color = '#00ff88';
-            
-            setTimeout(() => {
-                display.style.transform = 'scale(1)';
-                display.style.color = 'white';
-            }, 300);
-        }
-
-        function changeColor() {
-            const colors = ['#00ff88', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24'];
-            const display = document.querySelector('.anim-display');
-            display.style.color = colors[Math.floor(Math.random() * colors.length)];
-        }
-
-        // Performance test
-        function performanceTest() {
-            if (perfTestRunning) return;
-            
-            perfTestRunning = true;
-            let count = 0;
-            const startTime = performance.now();
-            
-            const testInterval = setInterval(() => {
-                app.perfValue = count++;
-                
-                if (count >= 1000) {
-                    clearInterval(testInterval);
-                    const endTime = performance.now();
-                    const duration = endTime - startTime;
-                    
-                    app.status = `Test complete: ${duration.toFixed(2)}ms for 1000 updates`;
-                    perfTestRunning = false;
-                }
-            }, 1);
-        }
-
-        function stopTest() {
-            perfTestRunning = false;
-            app.status = 'Test stopped';
-        }
-
-        // Utility functions
-        function getTotalBindings() {
-            return document.querySelectorAll('[d-model], .bind, .js-message, .counter-display').length;
-        }
-
-        // FPS Counter
-        let frames = 0;
-        let lastTime = performance.now();
-        
-        function updateFPS() {
-            frames++;
-            const now = performance.now();
-            
-            if (now - lastTime >= 1000) {
-                document.getElementById('fps-counter').textContent = frames;
-                frames = 0;
-                lastTime = now;
-            }
-            
-            requestAnimationFrame(updateFPS);
-        }
-        
-        updateFPS();
-
-        // Initialize
-        app.bindingsCount = getTotalBindings();
-        renderTodos();
-
-        console.log('🪞 Miroir.js Demo loaded!');
-        console.log('Try changing values and see the magic happen ✨');
-    </script>
+    /* ----- Init ----- */
+    document.addEventListener('DOMContentLoaded',()=>{ app.bindingsCount=document.querySelectorAll('[d-model],.counter-display,.perf-display,.todo-count').length; updateCounterChart(); updatePerfChart(); renderTodos(); if(window.webVitals){ webVitals.onCLS(console.log); webVitals.onLCP(console.log); }});
+  </script>
 </body>
 </html>
