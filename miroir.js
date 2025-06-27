@@ -55,7 +55,7 @@ const miroir = (() => {
    * @param {Object} [options={}] - Configuration options
    * @param {Element} [options.root=document.body] - Root element for DOM queries
    * @param {string} [options.bindSelector='.bind'] - CSS selector for HTML template elements
-   * @param {string} [options.modelAttribute='d-model'] - Attribute name for two-way binding
+   * @param {string} [options.modelAttribute='m-model'] - Attribute name for two-way binding
    * @param {Array<Object>} [options.bindings=[]] - JavaScript binding configurations
    * 
    * @returns {Proxy} Reactive proxy object with destroy() method
@@ -71,7 +71,7 @@ const miroir = (() => {
     const config = {
       root: options.root || document.body,
       bindSelector: options.bindSelector || '.bind',
-      modelAttribute: options.modelAttribute || 'd-model',
+      modelAttribute: options.modelAttribute || 'm-model',
       bindings: options.bindings || []
     };
 
@@ -233,14 +233,14 @@ const miroir = (() => {
   }
 
   /**
-   * Automatically binds HTML template elements and d-model attributes
+   * Automatically binds HTML template elements and m-model attributes
    * 
    * @private
    * @param {Element} root - Root element for DOM queries
    * @param {Proxy} state - Reactive state proxy
    * @param {Object} config - Configuration object
    * 
-   * @description Scans for elements with .bind class and d-model attributes,
+   * @description Scans for elements with .bind class and m-model attributes,
    * creating appropriate bindings with template variable replacement
    */
   function autoBind(root, state, config) {
@@ -265,7 +265,7 @@ const miroir = (() => {
       updateText(el, state);
     }
 
-    // Bind form inputs with d-model attribute
+    // Bind form inputs with m-model attribute
     const modelElements = getCachedElements(root, `[${config.modelAttribute}]`);
     for (let i = 0; i < modelElements.length; i++) {
       const input = modelElements[i];

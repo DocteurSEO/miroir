@@ -31,8 +31,8 @@ miroir.extend(attributeName, handlerFunction)
   <h1>Hello {{ name }}!</h1>
   <p>Age: {{ age }}</p>
 </div>
-<input d-model="name" placeholder="Name">
-<input d-model="age" type="number">
+<input m-model="name" placeholder="Name">
+<input m-model="age" type="number">
 
 <script>
 // JavaScript
@@ -71,7 +71,7 @@ const app = miroir.create({
 miroir.create(stateObject, {
   root: document.getElementById('app'),           // Default: document.body
   bindSelector: '.reactive',                      // Default: '.bind'  
-  modelAttribute: 'data-model',                   // Default: 'd-model'
+  modelAttribute: 'data-model',                   // Default: 'm-model'
   bindings: [                                     // Default: []
     { 'selector': 'propertyName' }
   ]
@@ -167,7 +167,7 @@ miroir.extend('m-each', (el, expr, state) => {
 ### Forms
 ```javascript
 miroir.extend('m-validate', (el, rules, state) => {
-  const value = state[el.getAttribute('d-model')] || '';
+  const value = state[el.getAttribute('m-model')] || '';
   const isValid = validateRules(value, rules);
   el.classList.toggle('error', !isValid);
 });
@@ -194,7 +194,7 @@ miroir.extend('m-submit', (el, handler, state) => {
     <h1>Tasks (<span class="count">0</span>)</h1>
     
     <form class="add-form">
-      <input d-model="newTodo" placeholder="Add task...">
+      <input m-model="newTodo" placeholder="Add task...">
       <button type="submit">Add</button>
     </form>
     
@@ -276,7 +276,7 @@ miroir.extend('m-submit', (el, handler, state) => {
     
     <div class="controls">
       <button onclick="updateStats()">Refresh</button>
-      <input d-model="refreshInterval" type="number" placeholder="Interval (ms)">
+      <input m-model="refreshInterval" type="number" placeholder="Interval (ms)">
     </div>
   </div>
 

@@ -86,7 +86,7 @@ miroir.extend('m-filter', (el, expr, state) => {
 
 // Real-time form validation
 miroir.extend('m-validate', (el, rules, state) => {
-  const modelAttr = el.getAttribute('d-model');
+  const modelAttr = el.getAttribute('m-model');
   if (!modelAttr) return;
   
   const value = state[modelAttr] || '';

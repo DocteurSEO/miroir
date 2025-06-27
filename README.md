@@ -32,7 +32,7 @@ Miroir.js provides simple, powerful, and fast two-way data binding for modern we
 </head>
 <body>
     <div class="bind">Hello {{ name }}!</div>
-    <input d-model="name" placeholder="Enter your name">
+    <input m-model="name" placeholder="Enter your name">
     
     <script>
         const app = miroir.create({
@@ -73,7 +73,7 @@ Creates a reactive proxy object with automatic DOM binding.
 - `options` (Object): Configuration options
   - `root` (Element): Root element for DOM queries (default: document.body)
   - `bindSelector` (String): CSS selector for template elements (default: '.bind')
-  - `modelAttribute` (String): Attribute for two-way binding (default: 'd-model')
+  - `modelAttribute` (String): Attribute for two-way binding (default: 'm-model')
   - `bindings` (Array): JavaScript binding configurations
 
 **Returns:** Reactive proxy with `destroy()` method
@@ -116,7 +116,7 @@ Miroir.js includes 25+ powerful extensions for common use cases:
 
 ### Forms & Validation
 ```html
-<input d-model="email" m-validate="required|email">
+<input m-model="email" m-validate="required|email">
 <div class="error-message"></div>
 <form m-submit="handleSubmit">...</form>
 <button m-reset="email,password">Reset</button>
@@ -156,7 +156,7 @@ Miroir.js includes 25+ powerful extensions for common use cases:
     </div>
     
     <!-- Todo List with Validation -->
-    <input d-model="newTodo" m-validate="required|min:3" placeholder="New task">
+    <input m-model="newTodo" m-validate="required|min:3" placeholder="New task">
     <div class="error-message"></div>
     <button onclick="addTodo()">Add Task</button>
     

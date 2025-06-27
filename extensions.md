@@ -120,7 +120,7 @@ miroir.extend('m-empty', (el, prop, state) => {
 ### `m-validate` - Real-time Validation
 ```javascript
 miroir.extend('m-validate', (el, rules, state) => {
-  const value = state[el.getAttribute('d-model')] || '';
+  const value = state[el.getAttribute('m-model')] || '';
   const ruleList = rules.split('|');
   let isValid = true;
   let message = '';
@@ -149,7 +149,7 @@ miroir.extend('m-validate', (el, rules, state) => {
 ```
 **Usage:**
 ```html
-<input d-model="email" m-validate="required|email">
+<input m-model="email" m-validate="required|email">
 <span class="error-message"></span>
 ```
 
@@ -355,7 +355,7 @@ miroir.extend('m-debounce', (el, expr, state) => {
   
   <!-- Add new todo -->
   <form m-submit="addTodo">
-    <input d-model="newTodo" m-validate="required" placeholder="New task...">
+    <input m-model="newTodo" m-validate="required" placeholder="New task...">
     <button type="submit">Add</button>
   </form>
   

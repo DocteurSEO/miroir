@@ -528,7 +528,7 @@
                     <p>Quand une propriété de cet objet change, le HTML est mis à jour instantanément.</p>
                     <ol>
                         <li><b>Afficher une donnée :</b> Utilisez la syntaxe <code>{{ variable }}</code>.</li>
-                        <li><b>Lier un champ :</b> Utilisez <code>d-model="variable"</code> sur un <code>&lt;input&gt;</code> pour une liaison dans les deux sens (JS ↔ HTML).</li>
+                        <li><b>Lier un champ :</b> Utilisez <code>m-model="variable"</code> sur un <code>&lt;input&gt;</code> pour une liaison dans les deux sens (JS ↔ HTML).</li>
                     </ol>
                     <p><b>À vous de jouer :</b> Modifiez le nom ou l'âge dans le code ou directement dans les champs de la prévisualisation.</p>
                     
@@ -702,7 +702,7 @@
     </div>
 
     <script>
-        const stepsData = {
+      const stepsData = {
             '1': {
                 html: `<div class="bind">
     <h1>Bonjour, {{ name }} !</h1>
@@ -761,16 +761,9 @@ const app = miroir.create({
 
 // 3. (Bonus) Observez les changements dans la console
 miroir.watch('myColor', (newValue) => {
-    console.log(\`La couleur a changé en : \${newValue}\`);
+    console.log('La couleur a changé en : ' + newValue);
 });`
             }
-        };
-
-        // Simuler miroir.js pour l'environnement de démonstration
-        const miroir = {
-            create: (obj) => obj,
-            extend: () => {},
-            watch: () => {}
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -803,8 +796,7 @@ miroir.watch('myColor', (newValue) => {
                 btn.addEventListener('click', function() {
                     const step = this.dataset.step;
                     const type = this.dataset.type;
-                    const editorId = `${type}-editor-${step}`;
-                    const editorEl = document.getElementById(editorId);
+                    const editorEl = document.querySelector(`#${type}-editor-${step}`);
                     
                     // Simuler la réinitialisation du code
                     editorEl.textContent = stepsData[step][type];
@@ -833,7 +825,7 @@ miroir.watch('myColor', (newValue) => {
             });
             
             // Gestion du bouton de validation (étape 3)
-            document.querySelector('.success-btn').addEventListener('click', function() {
+            document.querySelector('.success-btn')?.addEventListener('click', function() {
                 this.innerHTML = '<i class="fas fa-check"></i> Bravo !';
                 this.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
                 this.style.borderColor = 'transparent';
@@ -842,23 +834,27 @@ miroir.watch('myColor', (newValue) => {
         });
 
         function initStep(step) {
-            const htmlEditor = document.getElementById(`html-editor-${step}`);
-            const jsEditor = document.getElementById(`js-editor-${step}`);
+            const htmlEditor = document.querySelector(`#html-editor-${step}`);
+            const jsEditor = document.querySelector(`#js-editor-${step}`);
             
-            if (!htmlEditor.textContent) {
+            if (htmlEditor && !htmlEditor.textContent) {
                 htmlEditor.textContent = stepsData[step].html;
-                jsEditor.textContent = stepsData[step].js;
-                updatePreview(step);
             }
+            
+            if (jsEditor && !jsEditor.textContent) {
+                jsEditor.textContent = stepsData[step].js;
+            }
+            
+            updatePreview(step);
         }
 
         function updatePreview(step) {
             const iframe = document.getElementById(`preview-${step}`);
-            const htmlEditor = document.getElementById(`html-editor-${step}`);
-            const jsEditor = document.getElementById(`js-editor-${step}`);
+            const htmlEditor = document.querySelector(`#html-editor-${step}`);
+            const jsEditor = document.querySelector(`#js-editor-${step}`);
             
-            const htmlContent = htmlEditor.textContent || stepsData[step].html;
-            const jsContent = jsEditor.textContent || stepsData[step].js;
+            const htmlContent = htmlEditor?.textContent || stepsData[step].html;
+            const jsContent = jsEditor?.textContent || stepsData[step].js;
             
             // Créer le contenu de la prévisualisation
             const previewContent = `
@@ -946,7 +942,9 @@ miroir.watch('myColor', (newValue) => {
                             if (e.target.hasAttribute('d-model')) {
                                 const prop = e.target.getAttribute('d-model');
                                 const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-                                window.appState[prop] = value;
+                                if (window.appState) {
+                                    window.appState[prop] = value;
+                                }
                             }
                         });
                     </script>
@@ -956,7 +954,7 @@ miroir.watch('myColor', (newValue) => {
                     <script>
                         try {
                             ${jsContent}
-                            window.appState = app;
+                            window.appState = app || state;
                             
                             // Initialiser les extensions
                             if (miroir.extend && window.miroirExtensions) {
@@ -969,23 +967,30 @@ miroir.watch('myColor', (newValue) => {
                             }
                             
                             // Initialiser les valeurs
-                            Object.keys(window.appState).forEach(prop => {
-                                updateBindings(prop, window.appState[prop]);
-                            });
+                            if (window.appState) {
+                                Object.keys(window.appState).forEach(prop => {
+                                    updateBindings(prop, window.appState[prop]);
+                                });
+                            }
                         } catch(e) {
-                            document.body.innerHTML = '<div style="color:red; padding:20px;"><h3>Erreur d\'exécution</h3><pre>' + e + '</pre></div>';
+                            document.body.innerHTML = '<div style="color:red; padding:20px;"><h3>Erreur d\\'exécution</h3><pre>' + e + '</pre></div>';
+                            console.error(e);
                         }
                     </script>
                 </body>
                 </html>
             `;
             
-            iframe.srcdoc = previewContent;
+            if (iframe) {
+                iframe.srcdoc = previewContent;
+            }
         }
 
         function updateProgress(step) {
             const progress = document.getElementById('progress');
-            progress.style.width = `${(parseInt(step) / 3 * 100)}%`;
+            if (progress) {
+                progress.style.width = `${(parseInt(step) / 3 * 100)}%`;
+            }
         }
     </script>
 </body>
