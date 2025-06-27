@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🪞 Miroir.js Premium – Dashboard de performance</title>
+    <title>🪞 Miroir.js - Lightweight Reactive Data Binding</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <style>
         :root {
@@ -26,7 +26,7 @@
             background-image:radial-gradient(circle at 10% 20%,rgba(240,240,240,.1) 0%,transparent 20%),radial-gradient(circle at 90% 80%,rgba(230,230,230,.1) 0%,transparent 20%);
             background-attachment:fixed}
         /* Glass container*/
-        .glass-container{backdrop-filter:blur(16px) saturate(180%);background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:24px;padding:2.5rem;margin:0 auto;max-width:1400px;width:100%;box-shadow:var(--shadow);transition:var(--transition)}
+        .glass-container{backdrop-filter:blur(16px) saturate(180%);background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:24px;padding:2.5rem;margin:0 auto;max-width:1200px;width:100%;box-shadow:var(--shadow);transition:var(--transition)}
         .header{text-align:center;margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--border)}
         .header h1{font-size:2.8rem;font-weight:700;color:var(--primary);margin-bottom:.5rem;display:flex;align-items:center;justify-content:center;gap:12px}
         .header p{color:var(--light-text);font-size:1.2rem;max-width:600px;margin:0 auto;line-height:1.6}
@@ -36,7 +36,7 @@
         .stat-value{font-size:2.2rem;font-weight:700;color:var(--accent);margin-bottom:.5rem}
         .stat-label{color:var(--light-text);font-size:.95rem;font-weight:500;letter-spacing:.5px}
         .demo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2.2rem;margin-bottom:2rem}
-        .demo-section{background:white;border-radius:18px;padding:1.8rem;box-shadow:0 5px 15px rgba(0,0,0,.03);border:1px solid var(--border);transition:var(--transition)}
+        .demo-section{background:white;border-radius:18px;padding:1.8rem;box-shadow:0 5px 15px rgba(0,0,0,.03);border:1px solid var(--border);transition:var(--transition);margin-bottom:2rem}
         .demo-section:hover{box-shadow:0 10px 30px rgba(0,0,0,.05);transform:translateY(-3px)}
         .demo-section h3{display:flex;align-items:center;gap:10px;font-size:1.3rem;color:var(--primary);margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
         .btn-container{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.2rem}
@@ -66,88 +66,313 @@
         ::-webkit-scrollbar-track{background:rgba(0,0,0,.03)}
         ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px}
         ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25)}
+        
+        /* Product animations for price changes */
+        .product-item {
+            transition: all 0.3s ease;
+        }
+        .product-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .price-change-up {
+            animation: priceUp 0.8s ease-out;
+            background: rgba(39, 174, 96, 0.1) !important;
+        }
+        
+        .price-change-down {
+            animation: priceDown 0.8s ease-out;
+            background: rgba(231, 76, 60, 0.1) !important;
+        }
+        
+        @keyframes priceUp {
+            0% { background: rgba(39, 174, 96, 0.3); transform: scale(1.02); }
+            100% { background: rgba(39, 174, 96, 0.1); transform: scale(1); }
+        }
+        
+        @keyframes priceDown {
+            0% { background: rgba(231, 76, 60, 0.3); transform: scale(1.02); }
+            100% { background: rgba(231, 76, 60, 0.1); transform: scale(1); }
+        }
+        
+        .price-value {
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .price-increase {
+            color: #27ae60 !important;
+            animation: pulseGreen 0.6s ease;
+        }
+        
+        .price-decrease {
+            color: #e74c3c !important;
+            animation: pulseRed 0.6s ease;
+        }
+        
+        @keyframes pulseGreen {
+            0%, 100% { color: #27ae60; }
+            50% { color: #2ecc71; font-size: 1.1em; }
+        }
+        
+        @keyframes pulseRed {
+            0%, 100% { color: #e74c3c; }
+            50% { color: #c0392b; font-size: 1.1em; }
+        }
+        
+        .stock-low {
+            color: #e74c3c;
+            font-weight: bold;
+            animation: blinkStock 1s infinite;
+        }
+        
+        @keyframes blinkStock {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.6; }
+        }
+        
+        /* Fullscreen Modal */
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #fff;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .fullscreen-overlay.active {
+            display: flex;
+        }
+        
+        .fullscreen-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .fullscreen-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fullscreen-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .fullscreen-stat {
+            text-align: center;
+        }
+        
+        .fullscreen-stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--light-accent);
+        }
+        
+        .fullscreen-stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .fullscreen-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s ease;
+        }
+        
+        .fullscreen-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .fullscreen-controls {
+            background: rgba(0,0,0,0.05);
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .fullscreen-search {
+            flex: 1;
+            max-width: 400px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .fullscreen-content {
+            flex: 1;
+            padding: 1rem 2rem;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+        
+        .fullscreen-product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 8px;
+        }
+        
+        @media (max-width: 1200px) {
+            .fullscreen-product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+        
+        @media (max-width: 800px) {
+            .fullscreen-product-grid {
+                grid-template-columns: 1fr;
+            }
+            .fullscreen-header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .fullscreen-stats {
+                gap: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="glass-container fade-in">
         <div class="header">
-            <h1><span>🪞</span> Miroir.js Premium</h1>
-            <p>Bibliothèque de data‑binding réactive ultra‑légère (~3.8 KB gz) avec tableau de bord de performance intégré</p>
+            <h1><span>🪞</span> Miroir.js</h1>
+            <p>Ultra-lightweight reactive data binding library (~3.8 KB gzipped) with zero dependencies</p>
         </div>
 
         <!-- Performance Stats -->
         <div class="performance-stats">
             <div class="stat-item"><div class="stat-value updates-count">0</div><div class="stat-label">Updates/sec</div></div>
             <div class="stat-item"><div class="stat-value" id="fps-counter">60</div><div class="stat-label">FPS</div></div>
-            <div class="stat-item"><div class="stat-value bindings-count">0</div><div class="stat-label">Liens actifs</div></div>
-            <div class="stat-item"><div class="stat-value memory-usage">0</div><div class="stat-label">Mémoire (MB)</div></div>
+            <div class="stat-item"><div class="stat-value bindings-count">0</div><div class="stat-label">Active Bindings</div></div>
+            <div class="stat-item"><div class="stat-value memory-usage">0</div><div class="stat-label">Memory (MB)</div></div>
         </div>
 
         <div class="demo-grid">
             <!-- Live Counter Demo -->
             <div class="demo-section">
-                <h3>⚡ Compteur en direct</h3>
-                <div class="display large counter-display"><span class="highlight">0</span></div>
+                <h3>⚡ Live Counter</h3>
+                <div class="display large  bind"><span class="highlight">{{counter}}</span></div>
                 <div class="progress-container"><div class="progress-bar" id="counter-progress"></div></div>
                 <div class="chart-container" id="counter-chart"></div>
                 <div class="btn-container">
                     <button class="btn btn-primary" onclick="incrementCounter()">+1</button>
                     <button class="btn btn-outline" onclick="decrementCounter()">-1</button>
                     <button class="btn btn-outline" onclick="resetCounter()">Reset</button>
-                    <button class="btn" onclick="autoIncrement()">Auto +</button>
+                    <button class="btn" onclick="autoIncrement()">Auto +</button>
                 </div>
             </div>
 
             <!-- User Profile Demo -->
             <div class="demo-section">
-                <h3>👤 Profil utilisateur</h3>
-                <div class="input-group"><label class="input-label">Nom complet</label><input class="input" d-model="name" placeholder="Votre nom"></div>
-                <div class="input-group"><label class="input-label">Âge</label><input class="input" d-model="age" type="number" placeholder="Votre âge"></div>
-                <div class="display">Bonjour <span class="highlight bind">{{name}}</span> !<div class="text-muted mt-1 bind">Âge : {{ age }} ans</div></div>
+                <h3>👤 User Profile</h3>
+                <div class="input-group"><label class="input-label">Full Name</label><input class="input" d-model="name" placeholder="Your name"></div>
+                <div class="input-group"><label class="input-label">Age</label><input class="input" d-model="age" type="number" placeholder="Your age"></div>
+                <div class="display">Hello <span class="highlight bind">{{name}}</span>!<div style="color: var(--light-text); margin-top: 0.5rem; font-size: 1rem;" class="bind">Age: {{ age }} years old</div></div>
             </div>
 
             <!-- Todo List Demo -->
             <div class="demo-section">
-                <h3>📝 Liste de tâches</h3>
-                <div class="input-group"><label class="input-label">Nouvelle tâche</label><input class="input" id="new-todo" placeholder="Ajouter une tâche…" onkeypress="handleTodoEnter(event)"></div>
-                <div class="display">Tâches : <span class="highlight todo-count">0</span></div>
-                <div id="todo-list" class="mb-2"></div>
+                <h3>📝 Todo List</h3>
+                <div class="input-group"><label class="input-label">New task</label><input class="input" id="new-todo" placeholder="Add a task…" onkeypress="handleTodoEnter(event)"></div>
+                <div class="display">Tasks: <span class="highlight todo-count">0</span></div>
+                <div id="todo-list" style="margin: 1rem 0;"></div>
                 <div class="btn-container">
-                    <button class="btn btn-primary" onclick="addTodo()">Ajouter</button>
-                    <button class="btn btn-outline" onclick="clearCompleted()">Effacer terminées</button>
+                    <button class="btn btn-primary" onclick="addTodo()">Add</button>
+                    <button class="btn btn-outline" onclick="clearCompleted()">Clear completed</button>
                 </div>
             </div>
 
             <!-- Performance Test -->
             <div class="demo-section">
-                <h3>🚀 Test de performance</h3>
-                <div class="display perf-display"><span class="highlight">0</span></div>
-                <div class="text-muted mb-2">Benchmark synchronisé : 10 000 mises à jour continues</div>
-                <div class="chart-container" id="perf-chart"></div>
-                <canvas id="benchChart" height="120" style="width:100%;max-width:100%"></canvas>
-                <div class="btn-container">
-                    <button class="btn btn-primary" onclick="performanceTest()">Exécuter test</button>
-                    <button class="btn btn-outline" onclick="stopTest()">Arrêter</button>
+                <h3>🚀 E-Commerce Performance Test</h3>
+                <div style="color: var(--light-text); margin-bottom: 1rem; font-size: 0.9rem;">
+                    Real product catalog: 300 items with search, filter, and live updates
                 </div>
+                
+                <!-- Performance Stats -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="text-align: center; padding: 1rem; background: rgba(0,160,94,0.1); border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent);" id="render-time">0ms</div>
+                        <div style="font-size: 0.9rem; color: var(--light-text);">Render Time</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(54,162,235,0.1); border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #36a2eb;" id="update-time">0ms</div>
+                        <div style="font-size: 0.9rem; color: var(--light-text);">Update Time</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(255,99,132,0.1); border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ff6384;" id="fps-performance">60</div>
+                        <div style="font-size: 0.9rem; color: var(--light-text);">FPS</div>
+                    </div>
+                </div>
+                
+                <!-- Test Controls -->
+                <div class="btn-container">
+                    <button class="btn btn-primary" onclick="runProductCatalogTest()">🛍️ Load 300 Products</button>
+                    <button class="btn" onclick="runLiveUpdatesTest()">⚡ Live Price Updates</button>
+                    <button class="btn" onclick="openFullscreenDemo()">🔍 Fullscreen Demo</button>
+                    <button class="btn btn-outline" onclick="clearCatalogTest()">Clear Catalog</button>
+                </div>
+                
+                <!-- Live Product Search -->
+                <div style="margin: 1rem 0;">
+                    <input type="text" id="product-search" placeholder="🔍 Search products..." 
+                           style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem;"
+                           oninput="filterProducts(this.value)">
+                </div>
+                
+                <!-- Product Catalog Results -->
+                <div id="product-catalog" style="height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: #fafafa; font-size: 0.9rem;">
+                    <div style="color: var(--light-text); text-align: center; padding: 2rem;">
+                        Ready to test with real product data...
+                    </div>
+                </div>
+                
+                <!-- Performance Chart -->
+                <canvas id="benchChart" height="120" style="width:100%;max-width:100%; margin-top: 1rem;"></canvas>
             </div>
         </div>
 
-        <div class="footer"><p>🪞 Miroir.js v2.1 – optimisé 60 FPS</p><p class="text-muted">Dashboard DEV avec Stats.js, PerformanceObserver, Web Vitals</p></div>
+        <div class="footer">
+            <p>🪞 Miroir.js v2.1 – 60 FPS optimized</p>
+            <p style="color: var(--light-text); margin-top: 0.5rem;">
+                Want to see advanced features? Check out 
+                <a href="demo-extensions.html" style="color: var(--accent); text-decoration: none; font-weight: 500;">demo-extensions.html</a>
+            </p>
+        </div>
     </div>
 
-    <!-- Librairies -->
-    <script  src="./miroir.js"></script>
-   
+    <!-- Libraries -->
+    <script src="./miroir.js"></script>
     <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/web-vitals@3/dist/web-vitals.iife.min.js"></script>
 
-
-    
     <script>
-
-      
-        /* ----------  Paramètres globaux  ---------- */
+        /* ----------  Global settings  ---------- */
         let updateCount = 0;
         let perfTestRunning = false;
         let autoIncrementInterval = null;
@@ -155,14 +380,30 @@
         const chartData = { counter:Array(30).fill(0), performance:Array(30).fill(0) };
         const benchDurations = [];
         let benchChart;
-        /* ----------  App Miroir  ---------- */
-        const app = miroir.create({
-            name:'Jean Dupont',age:32,counter:0,todos:[],todoCount:0,perfValue:0,updateCount:0,bindingsCount:0,memoryUsage:0
-        },{ bindings:[
-            {'.counter-display':'counter'},{'.todo-count':'todoCount'},{'.perf-display':'perfValue'},{'.updates-count':'updateCount'},{'.bindings-count':'bindingsCount'},{'.memory-usage':'memoryUsage'}
-        ]});
 
-        // Compteur d'updates global
+        /* ----------  Miroir App  ---------- */
+        const app = miroir.create({
+            name:'John Doe',
+            age:25,
+            counter:0,
+            todos:[],
+            todoCount:0,
+            perfValue:0,
+            updateCount:0,
+            bindingsCount:0,
+            memoryUsage:0
+        }, { 
+            bindings:[
+                {'.counter-display':'counter'},
+                {'.todo-count':'todoCount'},
+                {'.perf-display':'perfValue'},
+                {'.updates-count':'updateCount'},
+                {'.bindings-count':'bindingsCount'},
+                {'.memory-usage':'memoryUsage'}
+            ]
+        });
+
+        // Global update counter
         miroir.watch('counter', () => updateCount++);
         miroir.watch('perfValue', () => updateCount++);
 
@@ -173,9 +414,10 @@
             });
         });
         perfObs.observe({entryTypes:['measure']});
-        // Long tasks >50 ms
+
+        // Long tasks >50 ms
         const longTaskObs = new PerformanceObserver(list => {
-            list.getEntries().forEach(l => console.warn(`⏱️ Long task ${l.duration.toFixed(1)} ms`));
+            list.getEntries().forEach(l => console.warn(`⏱️ Long task ${l.duration.toFixed(1)} ms`));
         });
         longTaskObs.observe({entryTypes:['longtask']});
 
@@ -192,53 +434,641 @@
         }
         requestAnimationFrame(monitorStats);
 
-        /* ----------  Mise à jour UI toutes les 1 s ---------- */
+        /* ----------  UI update every 1s ---------- */
         setInterval(()=>{
-            app.updateCount = updateCount; updateCount = 0;
-            // Mémoire réelle si supportée
-            if(performance.memory){ app.memoryUsage = (performance.memory.usedJSHeapSize/1048576).toFixed(1); }
+            app.updateCount = updateCount; 
+            updateCount = 0;
+            // Real memory if supported
+            if(performance.memory){ 
+                app.memoryUsage = (performance.memory.usedJSHeapSize/1048576).toFixed(1); 
+            }
             document.getElementById('fps-counter').textContent = fps;
         },1000);
 
-        /* ----------  Fonctions du compteur ---------- */
-        function incrementCounter(){ app.counter++; updateProgress(); updateCounterChart(); }
-        function decrementCounter(){ app.counter--; updateProgress(); updateCounterChart(); }
-        function resetCounter(){ app.counter=0; updateProgress(); chartData.counter=Array(30).fill(0); updateCounterChart(); }
-        function autoIncrement(){
-            if(autoIncrementInterval){clearInterval(autoIncrementInterval);autoIncrementInterval=null;return;}
-            autoIncrementInterval = setInterval(()=>{ app.counter++; updateProgress(); updateCounterChart(); },100);
+        /* ----------  Counter functions ---------- */
+        function incrementCounter(){ 
+            app.counter++; 
+            updateProgress(); 
+            updateCounterChart(); 
         }
-        function updateProgress(){ document.getElementById('counter-progress').style.width=`${Math.min(Math.abs(app.counter),100)}%`; }
+        function decrementCounter(){ 
+            app.counter--; 
+            updateProgress(); 
+            updateCounterChart(); 
+        }
+        function resetCounter(){ 
+            app.counter=0; 
+            updateProgress(); 
+            chartData.counter=Array(30).fill(0); 
+            updateCounterChart(); 
+        }
+        function autoIncrement(){
+            if(autoIncrementInterval){
+                clearInterval(autoIncrementInterval);
+                autoIncrementInterval=null;
+                return;
+            }
+            autoIncrementInterval = setInterval(()=>{ 
+                app.counter++; 
+                updateProgress(); 
+                updateCounterChart(); 
+            },100);
+        }
+        function updateProgress(){ 
+            document.getElementById('counter-progress').style.width=`${Math.min(Math.abs(app.counter),100)}%`; 
+        }
         function updateCounterChart(){
-            chartData.counter.shift(); chartData.counter.push(app.counter%30);
-            const c=document.getElementById('counter-chart'); c.innerHTML='';
+            chartData.counter.shift(); 
+            chartData.counter.push(app.counter%30);
+            const c=document.getElementById('counter-chart'); 
+            c.innerHTML='';
             chartData.counter.forEach((v,i)=>{
-                const b=document.createElement('div'); b.className='chart-bar'; b.style.height=`${v/30*100}%`; b.style.opacity=0.3+i/chartData.counter.length*0.7; c.appendChild(b);
+                const b=document.createElement('div'); 
+                b.className='chart-bar'; 
+                b.style.height=`${v/30*100}%`; 
+                b.style.opacity=0.3+i/chartData.counter.length*0.7; 
+                c.appendChild(b);
             });
         }
 
         /* ----------  Todo ---------- */
-        function addTodo(){ const input=document.getElementById('new-todo'); const text=input.value.trim(); if(text){ app.todos.push({id:Date.now(),text,completed:false}); app.todoCount=app.todos.length; input.value=''; renderTodos(); }}
-        function handleTodoEnter(e){ if(e.key==='Enter') addTodo(); }
-        function renderTodos(){ const list=document.getElementById('todo-list'); if(app.todos.length===0){ list.innerHTML='<div class="text-center text-muted">Aucune tâche</div>'; return;} list.innerHTML=app.todos.map(todo=>`<div class="todo-item ${todo.completed?'completed':''}"><input type="checkbox" ${todo.completed?'checked':''} onchange="toggleTodo(${todo.id})" style="margin-right:12px;"><div class="todo-text">${todo.text}</div><button class="btn btn-outline" onclick="deleteTodo(${todo.id})" style="margin-left:auto;padding:6px 10px;font-size:.85rem;">✕</button></div>`).join(''); }
-        function toggleTodo(id){ const t=app.todos.find(x=>x.id===id); if(t) t.completed=!t.completed; renderTodos(); }
-        function deleteTodo(id){ app.todos=app.todos.filter(t=>t.id!==id); app.todoCount=app.todos.length; renderTodos(); }
-        function clearCompleted(){ app.todos=app.todos.filter(t=>!t.completed); app.todoCount=app.todos.length; renderTodos(); }
+        function addTodo(){ 
+            const input=document.getElementById('new-todo'); 
+            const text=input.value.trim(); 
+            if(text){ 
+                app.todos.push({id:Date.now(),text,completed:false}); 
+                app.todoCount=app.todos.length; 
+                input.value=''; 
+                renderTodos(); 
+            }
+        }
+        function handleTodoEnter(e){ 
+            if(e.key==='Enter') addTodo(); 
+        }
+        function renderTodos(){ 
+            const list=document.getElementById('todo-list'); 
+            if(app.todos.length===0){ 
+                list.innerHTML='<div style="text-align:center;color:var(--light-text);">No tasks</div>'; 
+                return;
+            } 
+            list.innerHTML=app.todos.map(todo=>`
+                <div style="display:flex;align-items:center;padding:12px;margin:8px 0;background:rgba(248,249,250,.8);border-radius:10px;border:1px solid var(--border);transition:var(--transition);">
+                    <input type="checkbox" ${todo.completed?'checked':''} onchange="toggleTodo(${todo.id})" style="margin-right:12px;">
+                    <div style="flex:1;${todo.completed?'text-decoration:line-through;color:var(--light-text);':''}">${todo.text}</div>
+                    <button class="btn btn-outline" onclick="deleteTodo(${todo.id})" style="margin-left:auto;padding:6px 10px;font-size:.85rem;">✕</button>
+                </div>
+            `).join(''); 
+        }
+        function toggleTodo(id){ 
+            const t=app.todos.find(x=>x.id===id); 
+            if(t) t.completed=!t.completed; 
+            renderTodos(); 
+        }
+        function deleteTodo(id){ 
+            app.todos=app.todos.filter(t=>t.id!==id); 
+            app.todoCount=app.todos.length; 
+            renderTodos(); 
+        }
+        function clearCompleted(){ 
+            app.todos=app.todos.filter(t=>!t.completed); 
+            app.todoCount=app.todos.length; 
+            renderTodos(); 
+        }
 
-        /* ----------  Chart.js histogramme bench ---------- */
-        function initBenchChart(){ const ctx=document.getElementById('benchChart').getContext('2d'); benchChart=new Chart(ctx,{type:'bar',data:{labels:[],datasets:[{label:'Durée (ms)',data:[]} ]},options:{animation:false,scales:{x:{display:false},y:{beginAtZero:true}}}}); }
+        /* ----------  Chart.js performance tracking ---------- */
+        let performanceHistory = [];
+        
+        function initBenchChart(){ 
+            const ctx=document.getElementById('benchChart').getContext('2d'); 
+            benchChart=new Chart(ctx,{
+                type:'line',
+                data:{
+                    labels:[],
+                    datasets:[{
+                        label:'Render Time (ms)',
+                        data:[],
+                        borderColor:'rgba(0,160,94,1)',
+                        backgroundColor:'rgba(0,160,94,0.1)',
+                        fill:true,
+                        tension:0.4
+                    }, {
+                        label:'Update Time (ms)',
+                        data:[],
+                        borderColor:'rgba(54,162,235,1)',
+                        backgroundColor:'rgba(54,162,235,0.1)',
+                        fill:true,
+                        tension:0.4
+                    }]
+                },
+                options:{
+                    animation:false,
+                    responsive:true,
+                    scales:{
+                        y:{beginAtZero:true, title:{display:true, text:'Time (milliseconds)'}},
+                        x:{title:{display:true, text:'Test Runs'}}
+                    },
+                    plugins:{
+                        legend:{display:true, position:'top'}
+                    }
+                }
+            }); 
+        }
 
-        /* ----------  Test de performance ---------- */
-        async function performanceTest(){ if(perfTestRunning) return; perfTestRunning=true; const N=10000; performance.mark('bench-start'); for(let i=0;i<N;i++){ app.perfValue=i; } await new Promise(r=>requestAnimationFrame(r)); performance.mark('bench-end'); performance.measure('bench-updates','bench-start','bench-end'); const {duration}=performance.getEntriesByName('bench-updates').pop(); console.log(`${N} updates => ${duration.toFixed(2)} ms (${(N/duration).toFixed(1)} updates/ms)`); // histogramme
-            benchChart.data.labels.push(''); benchChart.data.datasets[0].data.push(duration); if(benchChart.data.labels.length>50){ benchChart.data.labels.shift(); benchChart.data.datasets[0].data.shift(); } benchChart.update(); perfTestRunning=false; }
-        function stopTest(){ perfTestRunning=false; }
+        /* ----------  E-Commerce Performance Tests ---------- */
+        let catalogApp = null;
+        let productsData = [];
+        let filteredProducts = [];
+        let liveUpdateInterval = null;
+        
+        // Generate realistic product data
+        function generateProductData(count = 300) {
+            const categories = ['Electronics', 'Books', 'Clothing', 'Home & Garden', 'Sports', 'Beauty', 'Automotive', 'Toys'];
+            const brands = ['Apple', 'Samsung', 'Sony', 'Microsoft', 'Google', 'Amazon', 'Nike', 'Adidas', 'H&M', 'IKEA'];
+            const adjectives = ['Premium', 'Pro', 'Ultra', 'Smart', 'Wireless', 'Portable', 'Digital', 'HD', 'Max', 'Plus'];
+            const products = ['Phone', 'Laptop', 'Watch', 'Speaker', 'Camera', 'Tablet', 'Headphones', 'Monitor', 'Keyboard', 'Mouse'];
+            
+            const data = [];
+            for(let i = 0; i < count; i++) {
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const brand = brands[Math.floor(Math.random() * brands.length)];
+                const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+                const product = products[Math.floor(Math.random() * products.length)];
+                
+                data.push({
+                    id: i + 1,
+                    name: `${brand} ${adjective} ${product}`,
+                    category: category,
+                    price: Math.floor(Math.random() * 2000) + 50,
+                    stock: Math.floor(Math.random() * 100) + 1,
+                    rating: (Math.random() * 2 + 3).toFixed(1), // 3.0 to 5.0
+                    discount: Math.random() > 0.7 ? Math.floor(Math.random() * 30) + 10 : 0
+                });
+            }
+            return data;
+        }
+        
+        async function runProductCatalogTest(isFullscreen = false) {
+            const startTime = performance.now();
+            
+            // Generate product data - 300 products
+            productsData = generateProductData(300);
+            filteredProducts = [...productsData];
+            
+            // Create Miroir app for product catalog
+            catalogApp = miroir.create({
+                products: productsData,
+                filteredProducts: filteredProducts,
+                searchTerm: '',
+                totalProducts: productsData.length,
+                averagePrice: 0
+            });
+            
+            // Watch for changes and update display
+            miroir.watch('filteredProducts', () => renderProductCatalog(isFullscreen));
+            
+            // Initial render
+            renderProductCatalog(isFullscreen);
+            
+            const endTime = performance.now();
+            const renderTime = Math.round(endTime - startTime);
+            
+            // Update stats
+            document.getElementById('render-time').textContent = `${renderTime}ms`;
+            if (isFullscreen) {
+                document.getElementById('fs-render-time').textContent = `${renderTime}ms`;
+                document.getElementById('fs-products').textContent = productsData.length;
+            }
+            updateChart('render', renderTime);
+            
+            console.log(`🛍️ Loaded ${productsData.length} products in ${renderTime}ms`);
+        }
+        
+        function renderProductCatalog(isFullscreen = false) {
+            const catalog = document.getElementById(isFullscreen ? 'fs-product-catalog' : 'product-catalog');
+            
+            if (!catalogApp || catalogApp.filteredProducts.length === 0) {
+                catalog.innerHTML = `<div style="color: var(--light-text); text-align: center; padding: 2rem; ${isFullscreen ? 'grid-column: 1 / -1;' : ''}">No products found</div>`;
+                return;
+            }
+            
+            // Calculate average price
+            const avgPrice = Math.round(catalogApp.filteredProducts.reduce((sum, p) => sum + p.price, 0) / catalogApp.filteredProducts.length);
+            catalogApp.averagePrice = avgPrice;
+            
+            // Render ALL products with optimized layout for fullscreen
+            if (isFullscreen) {
+                // Fullscreen grid layout
+                catalog.innerHTML = catalogApp.filteredProducts.map(product => {
+                    const stockClass = product.stock < 10 ? 'stock-low' : '';
+                    const priceChangeClass = product.priceChangeDirection || '';
+                    
+                    return `
+                    <div id="product-${product.id}" class="product-item ${product.animationClass || ''}" 
+                         style="padding: 12px; background: white; border-radius: 8px; border: 1px solid var(--border); transition: all 0.3s ease;">
+                        <div style="font-weight: 600; color: var(--primary); font-size: 1rem; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${product.name}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 0.8rem; color: var(--light-text);">${product.category}</span>
+                            <span style="font-size: 0.8rem; color: var(--accent);">⭐ ${product.rating}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div class="price-value ${priceChangeClass}" style="font-size: 1.2rem; font-weight: 700; color: var(--accent);">
+                                    $${product.price}
+                                    ${product.discount > 0 ? `<span style="font-size: 0.7rem; background: #e74c3c; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">-${product.discount}%</span>` : ''}
+                                </div>
+                                ${product.priceChange ? `<div style="font-size: 0.75rem; color: ${product.priceChange > 0 ? '#27ae60' : '#e74c3c'};">
+                                    ${product.priceChange > 0 ? '↗' : '↘'} ${Math.abs(product.priceChange).toFixed(1)}%
+                                </div>` : ''}
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="${stockClass}" style="font-size: 0.8rem; font-weight: 500;">
+                                    Stock: ${product.stock}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            } else {
+                // Regular list layout
+                catalog.innerHTML = catalogApp.filteredProducts.map(product => {
+                    const stockClass = product.stock < 10 ? 'stock-low' : '';
+                    const priceChangeClass = product.priceChangeDirection || '';
+                    
+                    return `
+                    <div id="product-${product.id}" class="product-item ${product.animationClass || ''}" 
+                         style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; margin: 2px 0; background: white; border-radius: 6px; border: 1px solid var(--border);">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 500; color: var(--primary); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${product.name}
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--light-text); margin-top: 2px;">
+                                ${product.category} • 
+                                <span class="${stockClass}">Stock: ${product.stock}</span> • 
+                                ⭐ ${product.rating}
+                            </div>
+                        </div>
+                        <div style="text-align: right; min-width: 80px;">
+                            <div class="price-value ${priceChangeClass}" style="font-size: 1rem; color: var(--accent);">
+                                $${product.price}
+                                ${product.discount > 0 ? `<span style="font-size: 0.65rem; background: #e74c3c; color: white; padding: 1px 4px; border-radius: 3px; margin-left: 4px;">-${product.discount}%</span>` : ''}
+                            </div>
+                            ${product.priceChange ? `<div style="font-size: 0.7rem; color: ${product.priceChange > 0 ? '#27ae60' : '#e74c3c'};">
+                                ${product.priceChange > 0 ? '↗' : '↘'} ${Math.abs(product.priceChange).toFixed(1)}%
+                            </div>` : ''}
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            }
+            
+            // Add summary at the top
+            catalog.innerHTML = `
+                <div style="position: sticky; top: 0; margin-bottom: 1rem; padding: 12px; background: rgba(0,160,94,0.1); border-radius: 8px; text-align: center; backdrop-filter: blur(10px); z-index: 10;">
+                    <strong>📊 Showing ${catalogApp.filteredProducts.length} products</strong><br>
+                    <span style="color: var(--light-text); font-size: 0.85rem;">Average price: $${avgPrice} • Total value: $${(avgPrice * catalogApp.filteredProducts.length).toLocaleString()}</span>
+                </div>
+            ` + catalog.innerHTML;
+        }
+        
+        async function runLiveUpdatesTest(isFullscreen = false) {
+            if (!catalogApp || productsData.length === 0) {
+                alert('Please load the product catalog first!');
+                return;
+            }
+            
+            if (liveUpdateInterval) {
+                clearInterval(liveUpdateInterval);
+                liveUpdateInterval = null;
+                return;
+            }
+            
+            // Start live price updates
+            liveUpdateInterval = setInterval(() => {
+                const startTime = performance.now();
+                
+                // Update 20 random products each time for more visual activity
+                const updatedProducts = [];
+                for(let i = 0; i < 20; i++) {
+                    const randomIndex = Math.floor(Math.random() * productsData.length);
+                    const product = productsData[randomIndex];
+                    
+                    // Store old price for animation
+                    const oldPrice = product.price;
+                    
+                    // Random price change ±15%
+                    const changePercent = (Math.random() - 0.5) * 0.3; // ±15%
+                    const newPrice = Math.round(product.price * (1 + changePercent));
+                    
+                    // Ensure price doesn't go below $10
+                    product.price = Math.max(10, newPrice);
+                    
+                    // Calculate actual price change percentage
+                    const actualChange = ((product.price - oldPrice) / oldPrice) * 100;
+                    product.priceChange = actualChange;
+                    
+                    // Set visual indicators
+                    if (actualChange > 0) {
+                        product.priceChangeDirection = 'price-increase';
+                        product.animationClass = 'price-change-up';
+                    } else if (actualChange < 0) {
+                        product.priceChangeDirection = 'price-decrease';  
+                        product.animationClass = 'price-change-down';
+                    }
+                    
+                    // Random stock changes
+                    const stockChange = Math.floor((Math.random() - 0.5) * 20);
+                    product.stock = Math.max(0, Math.min(100, product.stock + stockChange));
+                    
+                    // Random rating fluctuation
+                    if (Math.random() > 0.9) {
+                        const ratingChange = (Math.random() - 0.5) * 0.4;
+                        product.rating = Math.max(3.0, Math.min(5.0, parseFloat(product.rating) + ratingChange)).toFixed(1);
+                    }
+                    
+                    updatedProducts.push(product.id);
+                }
+                
+                // Clear animations after delay
+                setTimeout(() => {
+                    productsData.forEach(product => {
+                        product.animationClass = '';
+                        product.priceChangeDirection = '';
+                    });
+                    
+                    // Re-render without animations
+                    if (catalogApp.searchTerm) {
+                        filterProducts(catalogApp.searchTerm);
+                    } else {
+                        catalogApp.filteredProducts = [...productsData];
+                    }
+                }, 800);
+                
+                // Trigger immediate update with animations
+                catalogApp.products = [...productsData];
+                if (catalogApp.searchTerm) {
+                    filterProducts(catalogApp.searchTerm, isFullscreen);
+                } else {
+                    catalogApp.filteredProducts = [...productsData];
+                }
+                
+                const endTime = performance.now();
+                const updateTime = Math.round(endTime - startTime);
+                
+                // Update stats in both views
+                document.getElementById('update-time').textContent = `${updateTime}ms`;
+                if (isFullscreen) {
+                    document.getElementById('fs-update-time').textContent = `${updateTime}ms`;
+                }
+                updateChart('update', updateTime);
+                
+                // Show which products were updated
+                console.log(`💰 Updated ${updatedProducts.length} products in ${updateTime}ms`);
+                
+            }, 1500); // Update every 1.5 seconds for better visibility
+            
+            console.log('🔄 Started live price updates every 1 second');
+        }
+        
+        function filterProducts(searchTerm, isFullscreen = false) {
+            if (!catalogApp) return;
+            
+            const startTime = performance.now();
+            
+            catalogApp.searchTerm = searchTerm;
+            
+            if (!searchTerm.trim()) {
+                catalogApp.filteredProducts = [...productsData];
+            } else {
+                const term = searchTerm.toLowerCase();
+                catalogApp.filteredProducts = productsData.filter(product => 
+                    product.name.toLowerCase().includes(term) ||
+                    product.category.toLowerCase().includes(term)
+                );
+            }
+            
+            const endTime = performance.now();
+            const filterTime = Math.round(endTime - startTime);
+            
+            console.log(`🔍 Filtered ${catalogApp.filteredProducts.length} products in ${filterTime}ms`);
+        }
+        
+        function clearCatalogTest(isFullscreen = false) {
+            // Stop live updates
+            if (liveUpdateInterval) {
+                clearInterval(liveUpdateInterval);
+                liveUpdateInterval = null;
+            }
+            
+            // Clear data
+            if (catalogApp) {
+                catalogApp.destroy();
+                catalogApp = null;
+            }
+            
+            productsData = [];
+            filteredProducts = [];
+            
+            // Reset UI
+            if (isFullscreen) {
+                document.getElementById('fs-product-catalog').innerHTML = `
+                    <div style="grid-column: 1 / -1; color: var(--light-text); text-align: center; padding: 4rem;">
+                        <h2>🚀 Ready for Performance Demo</h2>
+                        <p>Click "Load Products" to see 300 products with real-time updates</p>
+                    </div>
+                `;
+                document.getElementById('fs-product-search').value = '';
+                document.getElementById('fs-render-time').textContent = '0ms';
+                document.getElementById('fs-update-time').textContent = '0ms';
+                document.getElementById('fs-products').textContent = '0';
+            } else {
+                document.getElementById('product-catalog').innerHTML = '<div style="color: var(--light-text); text-align: center; padding: 2rem;">Ready to test with real product data...</div>';
+                document.getElementById('product-search').value = '';
+                document.getElementById('render-time').textContent = '0ms';
+                document.getElementById('update-time').textContent = '0ms';
+            }
+            
+            // Clear chart
+            if (benchChart) {
+                benchChart.data.labels = [];
+                benchChart.data.datasets[0].data = [];
+                benchChart.data.datasets[1].data = [];
+                benchChart.update();
+            }
+            
+            console.log('🧹 Catalog test cleared');
+        }
+        
+        function updateChart(type, time) {
+            if (!benchChart) return;
+            
+            const now = new Date().toLocaleTimeString();
+            benchChart.data.labels.push(now);
+            
+            if (type === 'render') {
+                benchChart.data.datasets[0].data.push(time);
+                benchChart.data.datasets[1].data.push(null);
+            } else {
+                benchChart.data.datasets[0].data.push(null);
+                benchChart.data.datasets[1].data.push(time);
+            }
+            
+            // Keep only last 20 data points
+            if (benchChart.data.labels.length > 20) {
+                benchChart.data.labels.shift();
+                benchChart.data.datasets[0].data.shift();
+                benchChart.data.datasets[1].data.shift();
+            }
+            
+            benchChart.update();
+        }
+        
+        // FPS monitoring
+        let fpsCounter = 0;
+        let lastFpsTime = performance.now();
+        
+        function updateFPSCounter() {
+            fpsCounter++;
+            const now = performance.now();
+            
+            if (now - lastFpsTime >= 1000) {
+                document.getElementById('fps-performance').textContent = fpsCounter;
+                fpsCounter = 0;
+                lastFpsTime = now;
+            }
+            
+            requestAnimationFrame(updateFPSCounter);
+        }
 
-        /* ----------  FPS Counter natif ---------- */
-        function updateFPS(){ let frames=0; let last=performance.now(); function loop(){ frames++; const now=performance.now(); if(now-last>=1000){ fps=frames; frames=0; last=now; } requestAnimationFrame(loop); } requestAnimationFrame(loop); }
+        /* ----------  Fullscreen Demo Functions ---------- */
+        function openFullscreenDemo() {
+            const overlay = document.getElementById('fullscreen-overlay');
+            overlay.classList.add('active');
+            
+            // Reset fullscreen content
+            document.getElementById('fs-product-catalog').innerHTML = `
+                <div style="grid-column: 1 / -1; color: var(--light-text); text-align: center; padding: 4rem;">
+                    <h2>🚀 Ready for Performance Demo</h2>
+                    <p>Click "Load Products" to see 300 products with real-time updates</p>
+                </div>
+            `;
+            
+            // Reset stats
+            document.getElementById('fs-render-time').textContent = '0ms';
+            document.getElementById('fs-update-time').textContent = '0ms';
+            document.getElementById('fs-fps').textContent = '60';
+            document.getElementById('fs-products').textContent = '0';
+            
+            // Clear search
+            document.getElementById('fs-product-search').value = '';
+            
+            // Add ESC key listener
+            document.addEventListener('keydown', handleEscapeKey);
+            
+            console.log('🔍 Fullscreen demo opened');
+        }
+        
+        function closeFullscreenDemo() {
+            const overlay = document.getElementById('fullscreen-overlay');
+            overlay.classList.remove('active');
+            
+            // Remove ESC key listener
+            document.removeEventListener('keydown', handleEscapeKey);
+            
+            console.log('✕ Fullscreen demo closed');
+        }
+        
+        function handleEscapeKey(event) {
+            if (event.key === 'Escape') {
+                closeFullscreenDemo();
+            }
+        }
+
+        /* ----------  Native FPS Counter ---------- */
+        function updateFPS(){ 
+            let frames=0; 
+            let last=performance.now(); 
+            function loop(){ 
+                frames++; 
+                const now=performance.now(); 
+                if(now-last>=1000){ 
+                    fps=frames; 
+                    frames=0; 
+                    last=now; 
+                } 
+                requestAnimationFrame(loop); 
+            } 
+            requestAnimationFrame(loop); 
+        }
 
         /* ----------  Init ---------- */
-        function init(){ app.bindingsCount=document.querySelectorAll('[d-model], .counter-display, .todo-count, .perf-display').length; renderTodos(); updateCounterChart(); initBenchChart(); updateFPS(); console.log('🪞 Miroir.js Premium initialisé'); webVitals.onCLS(console.log); webVitals.onLCP(console.log); webVitals.onFID(console.log); webVitals.onTBT(console.log); }
+        function init(){ 
+            app.bindingsCount=document.querySelectorAll('[d-model], .counter-display, .todo-count, .perf-display').length; 
+            renderTodos(); 
+            updateCounterChart(); 
+            initBenchChart(); 
+            updateFPS(); 
+            updateFPSCounter(); // Start FPS monitoring for performance test
+            console.log('🪞 Miroir.js initialized'); 
+            if(typeof webVitals !== 'undefined'){ 
+                webVitals.onCLS(console.log); 
+                webVitals.onLCP(console.log); 
+                webVitals.onFID(console.log); 
+                webVitals.onTBT(console.log); 
+            } 
+        }
+
         document.addEventListener('DOMContentLoaded',init);
     </script>
+
+    <!-- Fullscreen Performance Demo Modal -->
+    <div id="fullscreen-overlay" class="fullscreen-overlay">
+        <div class="fullscreen-header">
+            <div class="fullscreen-title">
+                🚀 Miroir.js Performance Demo
+            </div>
+            <div class="fullscreen-stats">
+                <div class="fullscreen-stat">
+                    <div class="fullscreen-stat-value" id="fs-render-time">0ms</div>
+                    <div class="fullscreen-stat-label">Render</div>
+                </div>
+                <div class="fullscreen-stat">
+                    <div class="fullscreen-stat-value" id="fs-update-time">0ms</div>
+                    <div class="fullscreen-stat-label">Update</div>
+                </div>
+                <div class="fullscreen-stat">
+                    <div class="fullscreen-stat-value" id="fs-fps">60</div>
+                    <div class="fullscreen-stat-label">FPS</div>
+                </div>
+                <div class="fullscreen-stat">
+                    <div class="fullscreen-stat-value" id="fs-products">0</div>
+                    <div class="fullscreen-stat-label">Products</div>
+                </div>
+            </div>
+            <button class="fullscreen-close" onclick="closeFullscreenDemo()" title="Close (ESC)">✕</button>
+        </div>
+        
+        <div class="fullscreen-controls">
+            <input type="text" class="fullscreen-search" id="fs-product-search" 
+                   placeholder="🔍 Search 300 products..." 
+                   oninput="filterProducts(this.value, true)">
+            <div class="btn-container">
+                <button class="btn btn-primary" onclick="runProductCatalogTest(true)">🛍️ Load Products</button>
+                <button class="btn" onclick="runLiveUpdatesTest(true)">⚡ Start Updates</button>
+                <button class="btn btn-outline" onclick="clearCatalogTest(true)">Clear</button>
+            </div>
+        </div>
+        
+        <div class="fullscreen-content">
+            <div id="fs-product-catalog" class="fullscreen-product-grid">
+                <div style="grid-column: 1 / -1; color: var(--light-text); text-align: center; padding: 4rem;">
+                    <h2>🚀 Ready for Performance Demo</h2>
+                    <p>Click "Load Products" to see 300 products with real-time updates</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -5,20 +5,23 @@
  */
 
 // =============================================================================
-// 🎯 CONDITIONALS
+// 🎯 CONDITIONALS & VISIBILITY
 // =============================================================================
 
 // Show/hide elements based on state
+// Usage: <div m-show="isVisible">Content</div>
 miroir.extend('m-show', (el, prop, state) => {
   el.style.display = state[prop] ? 'block' : 'none';
 });
 
 // Inverse show - hide when true
+// Usage: <div m-hide="isLoading">Content shows when not loading</div>
 miroir.extend('m-hide', (el, prop, state) => {
   el.style.display = state[prop] ? 'none' : 'block';
 });
 
-// Conditional rendering with hidden attribute
+// Conditional rendering with hidden attribute (more semantic)
+// Usage: <div m-if="hasPermission">Sensitive content</div>
 miroir.extend('m-if', (el, prop, state) => {
   if (state[prop]) {
     el.style.removeProperty('display');
@@ -29,6 +32,7 @@ miroir.extend('m-if', (el, prop, state) => {
 });
 
 // Toggle CSS classes conditionally
+// Usage: <div m-class="active:isSelected">Item</div>
 miroir.extend('m-class', (el, expr, state) => {
   const [className, prop] = expr.split(':').map(s => s.trim());
   el.classList.toggle(className, !!state[prop]);
@@ -293,6 +297,51 @@ miroir.extend('m-outside', (el, prop, state) => {
 });
 
 // =============================================================================
+// 🎯 DEEP MODEL BINDING
+// =============================================================================
+
+// Deep model binding for nested object properties
+// Usage: <input d-deep-model="user.profile.name" placeholder="Name">
+miroir.extend('d-deep-model', (el, prop, state) => {
+  // Utility function to get nested property value
+  const getValue = (obj, path) => {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
+  };
+  
+  // Utility function to set nested property value
+  const setValue = (obj, path, value) => {
+    const keys = path.split('.');
+    const lastKey = keys.pop();
+    const target = keys.reduce((current, key) => {
+      if (current[key] === undefined) {
+        current[key] = {};
+      }
+      return current[key];
+    }, obj);
+    target[lastKey] = value;
+  };
+  
+  // Set initial value from nested property
+  const initialValue = getValue(state, prop);
+  if (initialValue !== undefined) {
+    el.value = initialValue;
+  }
+  
+  // Create bidirectional binding
+  const handler = (e) => {
+    setValue(state, prop, e.target.value);
+  };
+  
+  el.addEventListener('input', handler);
+  el.addEventListener('change', handler); // For select elements
+  
+  // Store handler for cleanup if needed
+  if (!el._deepModelHandler) {
+    el._deepModelHandler = handler;
+  }
+});
+
+// =============================================================================
 // 🚀 ADVANCED EXTENSIONS
 // =============================================================================
 
@@ -480,10 +529,76 @@ const styles = `
 
 console.log('🔌 Miroir.js extensions loaded!');
 console.log('Available extensions:', [
-  'm-show', 'm-hide', 'm-if', 'm-class',
-  'm-count', 'm-each', 'm-empty', 'm-filter', 
+  // UI & Conditionals
+  'm-show', 'm-hide', 'm-if', 'm-class', 'm-style', 'm-animate', 'm-toggle',
+  // Lists & Data
+  'm-count', 'm-each', 'm-empty', 'm-filter', 'm-format', 
+  // Forms & Validation
   'm-validate', 'm-submit', 'm-reset',
-  'm-style', 'm-animate', 'm-toggle', 'm-progress',
-  'm-format', 'm-click', 'm-timeout', 'm-outside',
-  'm-lazy', 'm-storage', 'm-debounce', 'm-focus', 'm-tooltip'
+  // Deep Binding
+  'd-deep-model', 'deep-watch',
+  // Advanced Features
+  'm-progress', 'm-click', 'm-timeout', 'm-outside', 'm-lazy', 'm-storage', 'm-debounce', 'm-focus', 'm-tooltip'
 ]);
+
+
+// Built-in extensions
+  
+  /**
+   * Deep watch extension for complex object structures
+   * 
+   * @description Monitors nested object changes with optimized caching using WeakMap
+   * for memory efficiency. Only updates DOM when deep comparison detects actual changes.
+   * 
+   * @example
+   * // HTML: <div deep-watch="user.profile">{{ user.profile.name }}, {{ user.profile.age }}</div>
+   * // JS: app.user.profile.name = 'John'; // Triggers intelligent update
+   * 
+   * @performance Uses deep comparison with caching to avoid unnecessary DOM updates
+   * while maintaining 60fps performance for complex nested objects.
+   */
+  const deepWatchCache = new WeakMap();
+  
+  miroir.extend('deep-watch', (el, prop, state) => {
+    // Get nested property value
+    const getValue = (obj, path) => {
+      return path.split('.').reduce((current, key) => current?.[key], obj);
+    };
+    
+    // Optimized deep comparison with cache
+    const deepCompare = (newVal, oldVal) => {
+      if (newVal === oldVal) return true;
+      if (newVal == null || oldVal == null) return false;
+      if (typeof newVal !== 'object' || typeof oldVal !== 'object') return false;
+      
+      const newKeys = Object.keys(newVal);
+      const oldKeys = Object.keys(oldVal);
+      
+      if (newKeys.length !== oldKeys.length) return false;
+      
+      for (let i = 0; i < newKeys.length; i++) {
+        const key = newKeys[i];
+        if (!oldKeys.includes(key)) return false;
+        if (!deepCompare(newVal[key], oldVal[key])) return false;
+      }
+      
+      return true;
+    };
+    
+    const currentValue = getValue(state, prop);
+    const cachedValue = deepWatchCache.get(el);
+    
+    // Only update if deep comparison shows difference
+    if (!deepCompare(currentValue, cachedValue)) {
+      deepWatchCache.set(el, JSON.parse(JSON.stringify(currentValue))); // Deep clone for cache
+      
+      // Update element content
+      if (el.originalHTML) {
+        el.innerHTML = el.originalHTML.replace(/\{\{\s*(\w+(?:\.\w+)*)\s*\}\}/g, (_, key) => {
+          return getValue(state, key) ?? '';
+        });
+      } else {
+        el.textContent = currentValue ?? '';
+      }
+    }
+  });
