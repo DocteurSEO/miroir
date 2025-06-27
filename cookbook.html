@@ -1,206 +1,992 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Miroir.js – Playground interactif</title>
-  <!-- Mini reset & Miroir theme -->
-  <link rel="stylesheet" href="styles/miroir.css">
-  <style>
-    :root {
-      --bg: #f4f7f9;
-      --glass: rgba(255,255,255,.65);
-      --border: rgba(0,0,0,.1);
-      --text: #2c3e50;
-      --muted: #7f8c9a;
-      --accent: #0969da;
-      --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      --mono: "SF Mono","Cascadia Code","Roboto Mono",monospace;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;padding:2rem;background:var(--bg);font-family:var(--sans);color:var(--text)}
-    h1,h2{margin:0;font-weight:700}
-    a{color:var(--accent)}
-    /* Layout */
-    .container{max-width:1400px;margin:0 auto}
-    header{text-align:center;margin-bottom:3rem}
-    header h1{font-size:2.75rem}
-    header p{color:var(--muted)}
-    /* Stepper */
-    .stepper{display:flex;justify-content:center;flex-wrap:wrap;gap:.75rem;margin-bottom:3rem}
-    .step-btn{padding:.7rem 1.4rem;border-radius:8px;font-weight:500;border:1px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer;backdrop-filter:blur(6px);transition:.25s}
-    .step-btn:hover{background:rgba(255,255,255,.9);color:var(--text)}
-    .step-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 18px rgba(9,105,218,.3)}
-    /* Step panels */
-    .step{display:none;animation:fade .45s ease}
-    .step.active{display:block}
-    @keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .grid{display:grid;grid-template-columns:40% 1fr;gap:2rem;height:60vh}
-    .card{background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:2rem;backdrop-filter:blur(10px);overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.05)}
-    .card h2{color:var(--accent)}
-    .card code{background:rgba(9,105,218,.1);padding:3px 6px;border-radius:6px;font-family:var(--mono);color:var(--accent)}
-    /* Playground */
-    .play{display:flex;flex-direction:column;gap:1rem;background:none;border:none;padding:0;box-shadow:none}
-    .editors{display:grid;grid-template-columns:1fr 1fr;gap:1rem;flex-grow:1}
-    .ed-wrap{display:flex;flex-direction:column;min-height:0}
-    .ed-wrap label{margin-bottom:.45rem;color:var(--muted);font-weight:500}
-    .monaco{flex-grow:1;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-    .preview{display:flex;flex-direction:column;height:260px}
-    .preview h3{margin:0 0 .5rem;font-weight:500;color:var(--muted)}
-    .frame{flex-grow:1;border:1px solid var(--border);border-radius:8px;background:#fff}
-    footer{text-align:center;margin-top:3rem;color:var(--muted)}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miroir.js Cookbook - Tutoriel Interactif</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --light-bg: #f4f7f9;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c9a;
+            --accent-blue: #0969da;
+            --accent-purple: #8a2be2;
+            --success: #2ecc71;
+            --font-sans: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Roboto Mono', monospace;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #f3e5f5);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+        }
+        
+        header {
+            text-align: center;
+            padding: 2.5rem 2rem 1.5rem;
+            background: linear-gradient(120deg, rgba(9, 105, 218, 0.1), rgba(138, 43, 226, 0.1));
+            border-bottom: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
+            z-index: -1;
+        }
+        
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .stepper {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .step-btn {
+            padding: 0.9rem 2rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .step-btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        
+        .step-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(9, 105, 218, 0.3);
+        }
+        
+        .step-btn .step-icon {
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        
+        .tutorial-step {
+            display: none;
+            padding: 0 2rem 2rem;
+        }
+        
+        .tutorial-step.active {
+            display: block;
+            animation: fadeIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 40% 1fr;
+            gap: 2rem;
+            height: 60vh;
+        }
+        
+        @media (max-width: 1100px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+        
+        .explanation, .interactive-zone {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow-y: auto;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .explanation h2 {
+            margin-top: 0;
+            color: var(--accent-purple);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .explanation h2::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 3px;
+        }
+        
+        .explanation p, .explanation li {
+            color: var(--text-dark);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        
+        .explanation code {
+            background-color: rgba(138, 43, 226, 0.1);
+            color: var(--accent-purple);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            border: 1px solid rgba(138, 43, 226, 0.15);
+        }
+        
+        .explanation ul {
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .explanation li {
+            margin-bottom: 0.8rem;
+            position: relative;
+        }
+        
+        .explanation li::before {
+            content: "•";
+            color: var(--accent-blue);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .interactive-zone {
+            background: transparent;
+            border: none;
+            padding: 0;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .editors-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            flex-grow: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .editors-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .editor-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            position: relative;
+        }
+        
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        
+        .editor-header label {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .editor-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .editor-btn {
+            background: rgba(9, 105, 218, 0.1);
+            border: 1px solid rgba(9, 105, 218, 0.2);
+            color: var(--accent-blue);
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .editor-btn:hover {
+            background: rgba(9, 105, 218, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .monaco-editor-container {
+            border-radius: 12px;
+            overflow: hidden;
+            flex-grow: 1;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            height: 280px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--glass-border);
+            background: white;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1.2rem;
+            background: rgba(9, 105, 218, 0.05);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .preview-header h3 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .preview-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .preview-frame {
+            flex-grow: 1;
+            border: none;
+            width: 100%;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2.5rem 2rem;
+            color: var(--text-muted);
+            background: rgba(9, 105, 218, 0.03);
+            border-top: 1px solid var(--glass-border);
+        }
+        
+        footer p {
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+        
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        footer a::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-blue);
+            transition: width 0.3s ease;
+        }
+        
+        footer a:hover {
+            color: var(--accent-purple);
+        }
+        
+        footer a:hover::after {
+            width: 100%;
+            background: var(--accent-purple);
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: rgba(9, 105, 218, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            width: 33.33%;
+            transition: width 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        
+        .completion-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--success);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+        
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>🪞 Miroir.js Playground</h1>
-      <p>Découvrez la réactivité en moins de 5 minutes. Essayez, modifiez, observez !</p>
-    </header>
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
 
-    <!-- Stepper navigation -->
-    <nav class="stepper" id="nav"></nav>
+    <div class="container">
+        <header>
+            <div class="logo">🪞</div>
+            <h1>Miroir.js Cookbook</h1>
+            <p>Le tutoriel interactif pour maîtriser la réactivité en un clin d'œil</p>
+            <div class="completion-badge">
+                <i class="fas fa-medal"></i> Tutoriel Interactif
+            </div>
+        </header>
 
-    <!-- Steps -->
-    <main id="steps"></main>
+        <nav class="stepper">
+            <button class="step-btn active" data-step="1">
+                <span class="step-icon">1</span>
+                Le Cœur
+            </button>
+            <button class="step-btn" data-step="2">
+                <span class="step-icon">2</span>
+                Les Extensions
+            </button>
+            <button class="step-btn" data-step="3">
+                <span class="step-icon">3</span>
+                Votre Extension
+            </button>
+        </nav>
 
-    <footer>
-      <p>Envie d’aller plus loin ? Consultez <a href="https://github.com/miroir-js">la doc complète</a>.</p>
-    </footer>
-  </div>
+        <!-- ÉTAPE 1 -->
+        <section id="step-1" class="tutorial-step active">
+            <div class="content-grid">
+                <div class="explanation">
+                    <h2>Étape 1: Le Cœur de Miroir.js</h2>
+                    <p><code>miroir.js</code> synchronise vos données JavaScript avec votre HTML. La magie opère grâce à <code>miroir.create()</code>, qui rend un objet "réactif".</p>
+                    <p>Quand une propriété de cet objet change, le HTML est mis à jour instantanément.</p>
+                    <ol>
+                        <li><b>Afficher une donnée :</b> Utilisez la syntaxe <code>{{ variable }}</code>.</li>
+                        <li><b>Lier un champ :</b> Utilisez <code>d-model="variable"</code> sur un <code>&lt;input&gt;</code> pour une liaison dans les deux sens (JS ↔ HTML).</li>
+                    </ol>
+                    <p><b>À vous de jouer :</b> Modifiez le nom ou l'âge dans le code ou directement dans les champs de la prévisualisation.</p>
+                    
+                    <div class="tip">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Astuce :</strong> Essayez de changer la valeur d'âge à plus de 100 ans !</p>
+                    </div>
+                </div>
+                <div class="interactive-zone">
+                    <div class="editors-container">
+                        <div class="editor-wrapper">
+                            <div class="editor-header">
+                                <label><i class="fas fa-code"></i> HTML</label>
+                                <div class="editor-actions">
+                                    <button class="editor-btn reset-btn" data-step="1" data-type="html">
+                                        <i class="fas fa-undo"></i> Réinitialiser
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="html-editor-1" class="monaco-editor-container"></div>
+                        </div>
+                        <div class="editor-wrapper">
+                            <div class="editor-header">
+                                <label><i class="fas fa-code"></i> JavaScript</label>
+                                <div class="editor-actions">
+                                    <button class="editor-btn reset-btn" data-step="1" data-type="js">
+                                        <i class="fas fa-undo"></i> Réinitialiser
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="js-editor-1" class="monaco-editor-container"></div>
+                        </div>
+                    </div>
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <h3><i class="fas fa-eye"></i> Prévisualisation <span class="status-indicator"></span></h3>
+                            <div class="preview-actions">
+                                <button class="editor-btn run-btn" data-step="1">
+                                    <i class="fas fa-play"></i> Exécuter
+                                </button>
+                            </div>
+                        </div>
+                        <iframe id="preview-1" class="preview-frame"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-  <!-- Monaco loader -->
-  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/loader.js"></script>
-  <script>
-    /* ---------- 1. Contenu pédagogique ---------- */
-    const data = [
-      {
-        id: '1',
-        title: 'Hello Miroir',
-        intro:`<p><code>miroir.create()</code> transforme un simple objet JS en mini store réactif : chaque changement reflète instantanément le HTML.</p>
-              <ol><li><b>Interpolation</b> : <code>{{ variable }}</code></li>
-              <li><b>Deux‑sens</b> : <code>d-model="variable"</code> sur un <code>&lt;input&gt;</code></li></ol>
-              <p>Modifiez le code ou tapez directement dans la prévisu 👇</p>`,
-        html:`<div class="bind">
-  <h2>Bienvenue, {{ name }} !</h2>
-  <p>Vous avez {{ age }} ans.</p>
-  <input d-model="name" placeholder="Votre nom">
-  <input type="number" d-model="age">
+        <!-- ÉTAPE 2 -->
+        <section id="step-2" class="tutorial-step">
+            <div class="content-grid">
+                <div class="explanation">
+                    <h2>Étape 2: La Puissance des Extensions</h2>
+                    <p>Les extensions sont des super-pouvoirs que vous ajoutez avec <code>miroir.extend()</code>. Elles créent des attributs HTML personnalisés pour des logiques réutilisables.</p>
+                    <p>Nous allons utiliser une extension très commune : <code>m-show</code>. Elle affiche un élément seulement si la variable associée est <code>true</code>.</p>
+                    <p><b>Exercice :</b> Cochez la case dans la prévisualisation pour faire apparaître et disparaître le message secret.</p>
+                    
+                    <div class="tip">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Astuce :</strong> Vous pouvez ajouter d'autres extensions comme <code>m-class</code> ou <code>m-if</code> pour plus de fonctionnalités.</p>
+                    </div>
+                </div>
+                <div class="interactive-zone">
+                    <div class="editors-container">
+                        <div class="editor-wrapper">
+                            <div class="editor-header">
+                                <label><i class="fas fa-code"></i> HTML</label>
+                                <div class="editor-actions">
+                                    <button class="editor-btn reset-btn" data-step="2" data-type="html">
+                                        <i class="fas fa-undo"></i> Réinitialiser
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="html-editor-2" class="monaco-editor-container"></div>
+                        </div>
+                        <div class="editor-wrapper">
+                            <div class="editor-header">
+                                <label><i class="fas fa-code"></i> JavaScript</label>
+                                <div class="editor-actions">
+                                    <button class="editor-btn reset-btn" data-step="2" data-type="js">
+                                        <i class="fas fa-undo"></i> Réinitialiser
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="js-editor-2" class="monaco-editor-container"></div>
+                        </div>
+                    </div>
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <h3><i class="fas fa-eye"></i> Prévisualisation <span class="status-indicator"></span></h3>
+                            <div class="preview-actions">
+                                <button class="editor-btn run-btn" data-step="2">
+                                    <i class="fas fa-play"></i> Exécuter
+                                </button>
+                            </div>
+                        </div>
+                        <iframe id="preview-2" class="preview-frame"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ÉTAPE 3 -->
+        <section id="step-3" class="tutorial-step">
+            <div class="content-grid">
+                <div class="explanation">
+                    <h2>Étape 3: Créez Votre Extension</h2>
+                    <p>À votre tour ! Créer une extension est un jeu d'enfant. <code>miroir.extend()</code> prend deux arguments :</p>
+                    <ol>
+                        <li>Le nom de l'attribut (ex: <code>'m-color'</code>).</li>
+                        <li>Une fonction qui reçoit l'élément (<code>el</code>), la valeur de l'attribut (<code>prop</code>), et l'état (<code>state</code>).</li>
+                    </ol>
+                    <p><b>Votre mission :</b> Créez une extension <code>m-color</code> qui change la couleur du texte d'un élément. Le code est presque complet, il ne manque qu'une ligne !</p>
+                    
+                    <div class="tip">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Astuce :</strong> Utilisez <code>el.style.color</code> pour changer la couleur du texte.</p>
+                    </div>
+                </div>
+                <div class="interactive-zone">
+                    <div class="editors-container">
+                        <div class="editor-wrapper">
+                            <div class="editor-header">
+                                <label><i class="fas fa-code"></i> HTML</label>
+                                <div class="editor-actions">
+                                    <button class="editor-btn reset-btn" data-step="3" data-type="html">
+                                        <i class="fas fa-undo"></i> Réinitialiser
+                                    </button>
+                                    <button class="editor-btn tooltip" data-tooltip="Copier le code">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="html-editor-3" class="monaco-editor-container"></div>
+                        </div>
+                        <div class="editor-wrapper">
+                            <div class="editor-header">
+                                <label><i class="fas fa-code"></i> JavaScript</label>
+                                <div class="editor-actions">
+                                    <button class="editor-btn reset-btn" data-step="3" data-type="js">
+                                        <i class="fas fa-undo"></i> Réinitialiser
+                                    </button>
+                                    <button class="editor-btn tooltip" data-tooltip="Copier le code">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="js-editor-3" class="monaco-editor-container"></div>
+                        </div>
+                    </div>
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <h3><i class="fas fa-eye"></i> Prévisualisation <span class="status-indicator"></span></h3>
+                            <div class="preview-actions">
+                                <button class="editor-btn run-btn" data-step="3">
+                                    <i class="fas fa-play"></i> Exécuter
+                                </button>
+                                <button class="editor-btn success-btn">
+                                    <i class="fas fa-check"></i> Valider
+                                </button>
+                            </div>
+                        </div>
+                        <iframe id="preview-3" class="preview-frame"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Félicitations ! Vous avez les bases pour créer des interfaces réactives avec Miroir.js.</p>
+            <p>Pour aller plus loin, explorez <a href="demo.html">demo.html</a> et <a href="extensions.md">extensions.md</a>.</p>
+            <p>Créé avec ❤️ par l'équipe Miroir.js</p>
+        </footer>
+    </div>
+
+    <script>
+        const stepsData = {
+            '1': {
+                html: `<div class="bind">
+    <h1>Bonjour, {{ name }} !</h1>
+    <p>Vous avez {{ age }} ans.</p>
+    <br>
+    <input d-model="name" placeholder="Votre nom">
+    <input type="number" d-model="age" min="0" max="120">
 </div>`,
-        js:`const state = miroir.create({
-  name: 'Alice',
-  age: 28
+                js: `const state = miroir.create({
+  name: 'Visiteur',
+  age: 30
 });`
-      },
-      {
-        id: '2',
-        title: 'Compteur & Watcher',
-        intro:`<p>Vous pouvez <code>watch</code> n’importe quelle propriété : pratique pour déclencher des effets de bord.</p>
-               <p>👉 Cliquez, observez la console.</p>`,
-        html:`<div class="bind" style="text-align:center">
-  <h2>{{ count }}</h2>
-  <button id="btn">+1</button>
+            },
+            '2': {
+                html: `<div class="bind">
+    <label>
+        <input type="checkbox" d-model="showSecret">
+        Révéler le secret
+    </label>
+
+    <div m-show="showSecret" style="margin-top: 1rem; padding: 1rem; background: rgba(9, 105, 218, 0.1); border-radius: 6px;">
+        <p style="color: #0969da; margin: 0;">
+            <strong>Le secret :</strong> Miroir.js est incroyablement simple !
+        </p>
+    </div>
 </div>`,
-        js:`const app = miroir.create({ count: 0 });
+                js: `// L'extension m-show est déjà dans extensions.js
+// donc nous n'avons pas besoin de la redéfinir ici.
 
-document.getElementById('btn').addEventListener('click', () => app.count++);
-
-miroir.watch('count', (nv, ov) => console.log(
-  \`Compteur passé de \${ov} à \${nv}\n\`
-));`
-      },
-      {
-        id: '3',
-        title: 'Formulaire réactif',
-        intro:`<p>Tout type d’input est synchronisé. Essayez la case à cocher 👇</p>`,
-        html:`<div class="bind">
-  <label><input type="checkbox" d-model="show"> Voir le secret</label>
-
-  <p m-show="show" style="margin-top:1rem;color:var(--accent)">
-    🤫 Miroir.js n’a aucune dépendance !
-  </p>
+const app = miroir.create({
+  showSecret: false
+});`
+            },
+            '3': {
+                html: `<div class="bind">
+    <h2 m-color="myColor">Ce texte change de couleur !</h2>
+    <br>
+    <label for="color-picker">Choisissez une couleur :</label>
+    <input type="color" d-model="myColor" id="color-picker">
+    <p>La couleur est : <code>{{ myColor }}</code></p>
 </div>`,
-        js:`// m-show est défini dans extensions.js
-
-const form = miroir.create({ show: false });`
-      },
-      {
-        id: '4',
-        title: 'Crée ta directive',
-        intro:`<p>Une extension = 1 attribut + 1 fonction. Complétez la ligne manquante pour colorer le texte.</p>`,
-        html:`<div class="bind">
-  <h2 m-color="fav">Couleur dynamique</h2>
-  <input type="color" d-model="fav">
-</div>`,
-        js:`miroir.extend('m-color', (el, prop, state) => {
-  // Ta mission : lier la couleur
+                js: `// 1. Créez votre extension !
+miroir.extend('m-color', (el, prop, state) => {
+  // el: l'élément <h2>
+  // prop: la chaîne "myColor"
+  // state: l'objet réactif
+  
+  // TODO: Liez la couleur de 'el' à la valeur de state[prop].
   el.style.color = state[prop];
 });
 
-const app = miroir.create({ fav: '#ff6347' });`
-      }
-    ];
+// 2. Créez l'état
+const app = miroir.create({
+  myColor: '#3498db'
+});
 
-    /* ---------- 2. Construction dynamique du DOM ---------- */
-    const nav = document.getElementById('nav');
-    const stepsEl = document.getElementById('steps');
+// 3. (Bonus) Observez les changements dans la console
+miroir.watch('myColor', (newValue) => {
+    console.log(\`La couleur a changé en : \${newValue}\`);
+});`
+            }
+        };
 
-    data.forEach(({id,title,intro})=>{
-      /* nav btn */
-      const b=document.createElement('button');
-      b.className='step-btn'; b.dataset.step=id; b.textContent=`${id}. ${title}`;
-      nav.appendChild(b);
-      /* panel */
-      const sec=document.createElement('section');
-      sec.id=`step-${id}`; sec.className='step';
-      sec.innerHTML=`<div class="grid">
-        <article class="card"> <h2>${title}</h2> ${intro} </article>
-        <div class="play card">
-          <div class="editors">
-            <div class="ed-wrap"><label>HTML</label><div id="html-${id}" class="monaco"></div></div>
-            <div class="ed-wrap"><label>JS</label><div id="js-${id}" class="monaco"></div></div>
-          </div>
-          <div class="preview"><h3>Prévisualisation</h3><iframe id="frame-${id}" class="frame"></iframe></div>
-        </div>
-      </div>`;
-      stepsEl.appendChild(sec);
-    });
+        // Simuler miroir.js pour l'environnement de démonstration
+        const miroir = {
+            create: (obj) => obj,
+            extend: () => {},
+            watch: () => {}
+        };
 
-    /* ---------- 3. Monaco & live preview ---------- */
-    const editors={};
-    function compile(html,js){
-      return`<!DOCTYPE html><html><head>
-        <link rel=stylesheet href="styles/miroir.css">
-        <script src="miroir.js"></script>
-        <script src="extensions.js"></script>
-        <style>body{font-family:var(--sans);margin:1rem}</style>
-      </head><body>${html}<script>try{${js}}catch(e){document.body.innerHTML+='<'+'pre style="color:red">'+e+'</pre>';console.error(e);}</script></body></html>`;
-    }
-    function init(id){
-      if(editors[id])return;
-      require(['vs/editor/editor.main'],()=>{
-        const h=monaco.editor.create(document.getElementById(`html-${id}`),{value:data.find(d=>d.id===id).html,language:'html',theme:'vs-light',automaticLayout:true,minimap:{enabled:false},wordWrap:'on'});
-        const j=monaco.editor.create(document.getElementById(`js-${id}`),{value:data.find(d=>d.id===id).js,language:'javascript',theme:'vs-light',automaticLayout:true,minimap:{enabled:false},wordWrap:'on'});
-        editors[id]={h,j};
-        const refresh=()=>{document.getElementById(`frame-${id}`).srcdoc=compile(h.getValue(),j.getValue());};
-        h.onDidChangeModelContent(refresh); j.onDidChangeModelContent(refresh); refresh();
-      });
-    }
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialisation des étapes
+            initStep(1);
+            updateProgress(1);
+            
+            // Gestion des boutons de navigation
+            const stepButtons = document.querySelectorAll('.step-btn');
+            stepButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const step = btn.dataset.step;
+                    
+                    // Mettre à jour l'UI
+                    document.querySelectorAll('.step-btn, .tutorial-step').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    
+                    btn.classList.add('active');
+                    document.getElementById(`step-${step}`).classList.add('active');
+                    
+                    // Initialiser l'étape
+                    initStep(step);
+                    updateProgress(step);
+                });
+            });
+            
+            // Gestion des boutons de réinitialisation
+            document.querySelectorAll('.reset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const step = this.dataset.step;
+                    const type = this.dataset.type;
+                    const editorId = `${type}-editor-${step}`;
+                    const editorEl = document.getElementById(editorId);
+                    
+                    // Simuler la réinitialisation du code
+                    editorEl.textContent = stepsData[step][type];
+                    updatePreview(step);
+                    
+                    // Feedback visuel
+                    this.innerHTML = '<i class="fas fa-check"></i> Réinitialisé !';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-undo"></i> Réinitialiser';
+                    }, 1500);
+                });
+            });
+            
+            // Gestion des boutons d'exécution
+            document.querySelectorAll('.run-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const step = this.dataset.step;
+                    updatePreview(step);
+                    
+                    // Feedback visuel
+                    this.innerHTML = '<i class="fas fa-sync fa-spin"></i> Exécution...';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-play"></i> Exécuter';
+                    }, 800);
+                });
+            });
+            
+            // Gestion du bouton de validation (étape 3)
+            document.querySelector('.success-btn').addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-check"></i> Bravo !';
+                this.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+                this.style.borderColor = 'transparent';
+                this.style.color = 'white';
+            });
+        });
 
-    /* ---------- 4. Navigation ---------- */
-    function activate(id){
-      document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
-      document.querySelectorAll('.step-btn').forEach(b=>b.classList.remove('active'));
-      document.getElementById(`step-${id}`).classList.add('active');
-      document.querySelector(`.step-btn[data-step="${id}"]`).classList.add('active');
-      init(id);
-    }
-    nav.addEventListener('click',e=>{if(e.target.matches('.step-btn'))activate(e.target.dataset.step)});
-    /* default */
-    activate('1');
+        function initStep(step) {
+            const htmlEditor = document.getElementById(`html-editor-${step}`);
+            const jsEditor = document.getElementById(`js-editor-${step}`);
+            
+            if (!htmlEditor.textContent) {
+                htmlEditor.textContent = stepsData[step].html;
+                jsEditor.textContent = stepsData[step].js;
+                updatePreview(step);
+            }
+        }
 
-    /* Resize editors on window resize */
-    window.addEventListener('resize',()=>Object.values(editors).forEach(({h,j})=>{h.layout();j.layout();}));
-  </script>
+        function updatePreview(step) {
+            const iframe = document.getElementById(`preview-${step}`);
+            const htmlEditor = document.getElementById(`html-editor-${step}`);
+            const jsEditor = document.getElementById(`js-editor-${step}`);
+            
+            const htmlContent = htmlEditor.textContent || stepsData[step].html;
+            const jsContent = jsEditor.textContent || stepsData[step].js;
+            
+            // Créer le contenu de la prévisualisation
+            const previewContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <style>
+                        body { 
+                            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+                            padding: 20px;
+                            background-color: #fff;
+                            color: #333;
+                        }
+                        input, button {
+                            padding: 10px;
+                            border: 1px solid #ddd;
+                            border-radius: 6px;
+                            margin: 5px 0;
+                        }
+                        h1, h2 {
+                            color: #0969da;
+                        }
+                        .bind {
+                            max-width: 500px;
+                            margin: 0 auto;
+                        }
+                    </style>
+                    <script>
+                        // Simuler miroir.js pour la démo
+                        const miroir = {
+                            create: function(obj) {
+                                // Créer un proxy pour observer les changements
+                                return new Proxy(obj, {
+                                    set(target, property, value) {
+                                        target[property] = value;
+                                        updateBindings(property, value);
+                                        return true;
+                                    }
+                                });
+                            },
+                            extend: function(name, fn) {
+                                // Enregistrer l'extension
+                                window.miroirExtensions = window.miroirExtensions || {};
+                                window.miroirExtensions[name] = fn;
+                            },
+                            watch: function(prop, fn) {
+                                // Simuler l'observation
+                                console.log("Observation activée pour: " + prop);
+                            }
+                        };
+                        
+                        function updateBindings(prop, value) {
+                            // Mettre à jour tous les bindings {{ }}
+                            document.querySelectorAll('[d-model], [m-show], [m-color]').forEach(el => {
+                                if (el.getAttribute('d-model') === prop) {
+                                    if (el.type === 'checkbox') {
+                                        el.checked = value;
+                                    } else {
+                                        el.value = value;
+                                    }
+                                }
+                            });
+                            
+                            // Mettre à jour les éléments avec {{ }}
+                            document.querySelectorAll('h1, h2, p, span').forEach(el => {
+                                if (el.innerHTML.includes('{{ ' + prop + ' }}')) {
+                                    el.innerHTML = el.innerHTML.replace(new RegExp('{{ ' + prop + ' }}', 'g'), value);
+                                }
+                            });
+                            
+                            // Appliquer les extensions
+                            if (window.miroirExtensions) {
+                                Object.keys(window.miroirExtensions).forEach(ext => {
+                                    document.querySelectorAll('[' + ext + ']').forEach(el => {
+                                        const propName = el.getAttribute(ext);
+                                        window.miroirExtensions[ext](el, propName, window.appState);
+                                    });
+                                });
+                            }
+                        }
+                        
+                        // Initialiser les liaisons
+                        document.addEventListener('input', function(e) {
+                            if (e.target.hasAttribute('d-model')) {
+                                const prop = e.target.getAttribute('d-model');
+                                const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+                                window.appState[prop] = value;
+                            }
+                        });
+                    </script>
+                </head>
+                <body>
+                    ${htmlContent}
+                    <script>
+                        try {
+                            ${jsContent}
+                            window.appState = app;
+                            
+                            // Initialiser les extensions
+                            if (miroir.extend && window.miroirExtensions) {
+                                Object.keys(window.miroirExtensions).forEach(ext => {
+                                    document.querySelectorAll('[' + ext + ']').forEach(el => {
+                                        const propName = el.getAttribute(ext);
+                                        window.miroirExtensions[ext](el, propName, window.appState);
+                                    });
+                                });
+                            }
+                            
+                            // Initialiser les valeurs
+                            Object.keys(window.appState).forEach(prop => {
+                                updateBindings(prop, window.appState[prop]);
+                            });
+                        } catch(e) {
+                            document.body.innerHTML = '<div style="color:red; padding:20px;"><h3>Erreur d\'exécution</h3><pre>' + e + '</pre></div>';
+                        }
+                    </script>
+                </body>
+                </html>
+            `;
+            
+            iframe.srcdoc = previewContent;
+        }
+
+        function updateProgress(step) {
+            const progress = document.getElementById('progress');
+            progress.style.width = `${(parseInt(step) / 3 * 100)}%`;
+        }
+    </script>
 </body>
 </html>
