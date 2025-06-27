@@ -4,8 +4,8 @@
  * @description Provides simple, powerful, and fast two-way data binding with zero dependencies.
  * Choose between HTML templates or JavaScript bindings - both work seamlessly together.
  * 
- * @version 1.0.0
- * @author Miroir.js Team
+ * @version 0.5.1
+ * @author Ahmed SENEINA
  * @license MIT
  * 
  * @example

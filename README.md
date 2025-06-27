@@ -276,17 +276,15 @@ app.destroy(); // Removes all event listeners and clears caches
 
 ### CDN
 ```html
-<script src="https://unpkg.com/miroir@latest/miroir.js"></script>
-<script src="https://unpkg.com/miroir@latest/extensions.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/DocteurSEO/miroir@main/miroir.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/DocteurSEO/miroir@main/miroir.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/DocteurSEO/miroir@main/extensions.js"></script>
 ```
 
-### NPM
-```bash
-npm install miroir
-```
+
 
 ### Download
-Download the latest version from [GitHub Releases](https://github.com/miroir-js/miroir/releases)
+Download the latest version from [GitHub Releases](https://github.com/DocteurSEO/miroir/tree/main)
 
 ## 🤝 Contributing
 
@@ -311,5 +309,3 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 ---
 
 **Made with ❤️ by the Miroir.js community**
-
-[📚 Documentation](https://miroir.dev) • [🐛 Report Bug](https://github.com/miroir-js/miroir/issues) • [💡 Request Feature](https://github.com/miroir-js/miroir/issues) • [💬 Community](https://discord.gg/miroir)

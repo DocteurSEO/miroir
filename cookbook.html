@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miroir.js – Playground interactif</title>
+  <!-- Mini reset & Miroir theme -->
+  <link rel="stylesheet" href="styles/miroir.css">
+  <style>
+    :root {
+      --bg: #f4f7f9;
+      --glass: rgba(255,255,255,.65);
+      --border: rgba(0,0,0,.1);
+      --text: #2c3e50;
+      --muted: #7f8c9a;
+      --accent: #0969da;
+      --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --mono: "SF Mono","Cascadia Code","Roboto Mono",monospace;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;padding:2rem;background:var(--bg);font-family:var(--sans);color:var(--text)}
+    h1,h2{margin:0;font-weight:700}
+    a{color:var(--accent)}
+    /* Layout */
+    .container{max-width:1400px;margin:0 auto}
+    header{text-align:center;margin-bottom:3rem}
+    header h1{font-size:2.75rem}
+    header p{color:var(--muted)}
+    /* Stepper */
+    .stepper{display:flex;justify-content:center;flex-wrap:wrap;gap:.75rem;margin-bottom:3rem}
+    .step-btn{padding:.7rem 1.4rem;border-radius:8px;font-weight:500;border:1px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer;backdrop-filter:blur(6px);transition:.25s}
+    .step-btn:hover{background:rgba(255,255,255,.9);color:var(--text)}
+    .step-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 18px rgba(9,105,218,.3)}
+    /* Step panels */
+    .step{display:none;animation:fade .45s ease}
+    .step.active{display:block}
+    @keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .grid{display:grid;grid-template-columns:40% 1fr;gap:2rem;height:60vh}
+    .card{background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:2rem;backdrop-filter:blur(10px);overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.05)}
+    .card h2{color:var(--accent)}
+    .card code{background:rgba(9,105,218,.1);padding:3px 6px;border-radius:6px;font-family:var(--mono);color:var(--accent)}
+    /* Playground */
+    .play{display:flex;flex-direction:column;gap:1rem;background:none;border:none;padding:0;box-shadow:none}
+    .editors{display:grid;grid-template-columns:1fr 1fr;gap:1rem;flex-grow:1}
+    .ed-wrap{display:flex;flex-direction:column;min-height:0}
+    .ed-wrap label{margin-bottom:.45rem;color:var(--muted);font-weight:500}
+    .monaco{flex-grow:1;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+    .preview{display:flex;flex-direction:column;height:260px}
+    .preview h3{margin:0 0 .5rem;font-weight:500;color:var(--muted)}
+    .frame{flex-grow:1;border:1px solid var(--border);border-radius:8px;background:#fff}
+    footer{text-align:center;margin-top:3rem;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🪞 Miroir.js Playground</h1>
+      <p>Découvrez la réactivité en moins de 5 minutes. Essayez, modifiez, observez !</p>
+    </header>
+
+    <!-- Stepper navigation -->
+    <nav class="stepper" id="nav"></nav>
+
+    <!-- Steps -->
+    <main id="steps"></main>
+
+    <footer>
+      <p>Envie d’aller plus loin ? Consultez <a href="https://github.com/miroir-js">la doc complète</a>.</p>
+    </footer>
+  </div>
+
+  <!-- Monaco loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/loader.js"></script>
+  <script>
+    /* ---------- 1. Contenu pédagogique ---------- */
+    const data = [
+      {
+        id: '1',
+        title: 'Hello Miroir',
+        intro:`<p><code>miroir.create()</code> transforme un simple objet JS en mini store réactif : chaque changement reflète instantanément le HTML.</p>
+              <ol><li><b>Interpolation</b> : <code>{{ variable }}</code></li>
+              <li><b>Deux‑sens</b> : <code>d-model="variable"</code> sur un <code>&lt;input&gt;</code></li></ol>
+              <p>Modifiez le code ou tapez directement dans la prévisu 👇</p>`,
+        html:`<div class="bind">
+  <h2>Bienvenue, {{ name }} !</h2>
+  <p>Vous avez {{ age }} ans.</p>
+  <input d-model="name" placeholder="Votre nom">
+  <input type="number" d-model="age">
+</div>`,
+        js:`const state = miroir.create({
+  name: 'Alice',
+  age: 28
+});`
+      },
+      {
+        id: '2',
+        title: 'Compteur & Watcher',
+        intro:`<p>Vous pouvez <code>watch</code> n’importe quelle propriété : pratique pour déclencher des effets de bord.</p>
+               <p>👉 Cliquez, observez la console.</p>`,
+        html:`<div class="bind" style="text-align:center">
+  <h2>{{ count }}</h2>
+  <button id="btn">+1</button>
+</div>`,
+        js:`const app = miroir.create({ count: 0 });
+
+document.getElementById('btn').addEventListener('click', () => app.count++);
+
+miroir.watch('count', (nv, ov) => console.log(
+  \`Compteur passé de \${ov} à \${nv}\n\`
+));`
+      },
+      {
+        id: '3',
+        title: 'Formulaire réactif',
+        intro:`<p>Tout type d’input est synchronisé. Essayez la case à cocher 👇</p>`,
+        html:`<div class="bind">
+  <label><input type="checkbox" d-model="show"> Voir le secret</label>
+
+  <p m-show="show" style="margin-top:1rem;color:var(--accent)">
+    🤫 Miroir.js n’a aucune dépendance !
+  </p>
+</div>`,
+        js:`// m-show est défini dans extensions.js
+
+const form = miroir.create({ show: false });`
+      },
+      {
+        id: '4',
+        title: 'Crée ta directive',
+        intro:`<p>Une extension = 1 attribut + 1 fonction. Complétez la ligne manquante pour colorer le texte.</p>`,
+        html:`<div class="bind">
+  <h2 m-color="fav">Couleur dynamique</h2>
+  <input type="color" d-model="fav">
+</div>`,
+        js:`miroir.extend('m-color', (el, prop, state) => {
+  // Ta mission : lier la couleur
+  el.style.color = state[prop];
+});
+
+const app = miroir.create({ fav: '#ff6347' });`
+      }
+    ];
+
+    /* ---------- 2. Construction dynamique du DOM ---------- */
+    const nav = document.getElementById('nav');
+    const stepsEl = document.getElementById('steps');
+
+    data.forEach(({id,title,intro})=>{
+      /* nav btn */
+      const b=document.createElement('button');
+      b.className='step-btn'; b.dataset.step=id; b.textContent=`${id}. ${title}`;
+      nav.appendChild(b);
+      /* panel */
+      const sec=document.createElement('section');
+      sec.id=`step-${id}`; sec.className='step';
+      sec.innerHTML=`<div class="grid">
+        <article class="card"> <h2>${title}</h2> ${intro} </article>
+        <div class="play card">
+          <div class="editors">
+            <div class="ed-wrap"><label>HTML</label><div id="html-${id}" class="monaco"></div></div>
+            <div class="ed-wrap"><label>JS</label><div id="js-${id}" class="monaco"></div></div>
+          </div>
+          <div class="preview"><h3>Prévisualisation</h3><iframe id="frame-${id}" class="frame"></iframe></div>
+        </div>
+      </div>`;
+      stepsEl.appendChild(sec);
+    });
+
+    /* ---------- 3. Monaco & live preview ---------- */
+    const editors={};
+    function compile(html,js){
+      return`<!DOCTYPE html><html><head>
+        <link rel=stylesheet href="styles/miroir.css">
+        <script src="miroir.js"></script>
+        <script src="extensions.js"></script>
+        <style>body{font-family:var(--sans);margin:1rem}</style>
+      </head><body>${html}<script>try{${js}}catch(e){document.body.innerHTML+='<'+'pre style="color:red">'+e+'</pre>';console.error(e);}</script></body></html>`;
+    }
+    function init(id){
+      if(editors[id])return;
+      require(['vs/editor/editor.main'],()=>{
+        const h=monaco.editor.create(document.getElementById(`html-${id}`),{value:data.find(d=>d.id===id).html,language:'html',theme:'vs-light',automaticLayout:true,minimap:{enabled:false},wordWrap:'on'});
+        const j=monaco.editor.create(document.getElementById(`js-${id}`),{value:data.find(d=>d.id===id).js,language:'javascript',theme:'vs-light',automaticLayout:true,minimap:{enabled:false},wordWrap:'on'});
+        editors[id]={h,j};
+        const refresh=()=>{document.getElementById(`frame-${id}`).srcdoc=compile(h.getValue(),j.getValue());};
+        h.onDidChangeModelContent(refresh); j.onDidChangeModelContent(refresh); refresh();
+      });
+    }
+
+    /* ---------- 4. Navigation ---------- */
+    function activate(id){
+      document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+      document.querySelectorAll('.step-btn').forEach(b=>b.classList.remove('active'));
+      document.getElementById(`step-${id}`).classList.add('active');
+      document.querySelector(`.step-btn[data-step="${id}"]`).classList.add('active');
+      init(id);
+    }
+    nav.addEventListener('click',e=>{if(e.target.matches('.step-btn'))activate(e.target.dataset.step)});
+    /* default */
+    activate('1');
+
+    /* Resize editors on window resize */
+    window.addEventListener('resize',()=>Object.values(editors).forEach(({h,j})=>{h.layout();j.layout();}));
+  </script>
+</body>
+</html>
